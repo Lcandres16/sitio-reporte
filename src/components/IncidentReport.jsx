@@ -41,7 +41,7 @@ const IncidentReport = () => {
               className="flex items-center gap-2 hover:text-blue-500"
             >
               <MapPin className="w-6 h-6" />
-              <span className="font-bold text-xl">Rayoloma</span>
+              <span className="font-bold text-xl">Reporte Cuidadano</span>
             </button>
           </div>
           <nav className="flex items-center gap-6">
