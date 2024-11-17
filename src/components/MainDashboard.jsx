@@ -15,7 +15,7 @@ const MainDashboard = () => {
         navigate('location')
         break;
       case 3: // Lista de reportes
-        // Aquí irá la navegación a la lista cuando se implemente
+        navigate('/incidentlist')
         break;
       case 4: // Contacto de autoridades
         // Aquí irá la navegación a contactos cuando se implemente

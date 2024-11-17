@@ -4,6 +4,9 @@ import { Search, MapPin, FileText, Image, Calendar, Grid3X3, Menu, Bell } from '
 import MainDashboard from './components/MainDashboard';
 import IncidentReport from './components/IncidentReport';
 import Incidentmaps from './components/Incidentmaps';
+import IncidentList from './components/IncidentList';
+
+
 
 // CitizenReporter component with navigation
 const CitizenReporter = () => {
@@ -51,7 +54,7 @@ const CitizenReporter = () => {
   };
 
   const handleIncidentClick = () => {
-    navigate('/incident-type'); // Necesitarás crear esta ruta y componente
+    navigate('/Incidents');
   };
 
   const handleMediaClick = () => {
@@ -198,7 +201,7 @@ const CitizenReporter = () => {
 
       {/* Recent Reports */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <h2 className="text-xl font-semibold mb-4">Your recent reports</h2>
+        <h2 className="text-xl font-semibold mb-4">Reportes de Incidentes</h2>
         <div className="space-y-4">
           {recentReports.map((report) => (
             <div 
@@ -242,7 +245,7 @@ function App() {
         <Route path="/report" element={<IncidentReport />} />
         {/* Necesitarás agregar estas nuevas rutas y crear sus componentes correspondientes */}
         <Route path="/location" element={<Incidentmaps />} />
-        <Route path="/incident-type" element={<div>Incident Type Page</div>} />
+        <Route path="/incidents" element={<IncidentList />} />
         <Route path="/media" element={<div>Media Page</div>} />
         <Route path="/datetime" element={<div>Date & Time Page</div>} />
         <Route path="/description" element={<div>Description Page</div>} />
