@@ -44,17 +44,6 @@ const IncidentReport = () => {
               <span className="font-bold text-xl">Reporte Cuidadano</span>
             </button>
           </div>
-          <nav className="flex items-center gap-6">
-            <a href="#" className="text-gray-600 hover:text-blue-500">Report an issue</a>
-            <a href="#" className="text-gray-600 hover:text-blue-500">Explore issues</a>
-            <a href="#" className="text-gray-600 hover:text-blue-500">Map</a>
-            <button className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-              Sign in
-            </button>
-            <button className="text-gray-700 px-4 py-2 rounded-lg border hover:bg-gray-50">
-              Sign up
-            </button>
-          </nav>
         </div>
       </header>
 

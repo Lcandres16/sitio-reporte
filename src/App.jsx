@@ -1,16 +1,28 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { Search, MapPin, FileText, Image, Calendar, Grid3X3, Menu, Bell } from 'lucide-react';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { Search, MapPin, FileText, Image, Calendar, Grid3X3, Menu, Bell, LogOut } from 'lucide-react';
+import { useAuth, AuthProvider } from './Context/AuthContext';
 import MainDashboard from './components/MainDashboard';
 import IncidentReport from './components/IncidentReport';
 import Incidentmaps from './components/Incidentmaps';
 import IncidentList from './components/IncidentList';
+import LoginPage from './components/LoginPage';
 
+// Protected Route component
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return children;
+};
 
-
-// CitizenReporter component with navigation
 const CitizenReporter = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   
   const recentReports = [
     {
@@ -36,50 +48,48 @@ const CitizenReporter = () => {
     }
   ];
 
-  // Funciones de navegación
+  // Navigation functions
   const handleCreateReport = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     navigate('/report');
   };
 
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+    setShowProfileMenu(false);
   };
 
-  const handleExploreClick = () => {
-    navigate('/explore'); // Necesitarás crear esta ruta y componente
-  };
-
-  const handleLocationClick = () => {
-    navigate('/location'); // Necesitarás crear esta ruta y componente
-  };
-
-  const handleIncidentClick = () => {
-    navigate('/Incidents');
-  };
-
-  const handleMediaClick = () => {
-    navigate('/media'); // Necesitarás crear esta ruta y componente
-  };
-
-  const handleDateTimeClick = () => {
-    navigate('/datetime'); // Necesitarás crear esta ruta y componente
-  };
-
-  const handleCategoryClick = () => {
-    navigate('/dashboard');
-  };
-
-  const handleDescriptionClick = () => {
-    navigate('/description'); // Necesitarás crear esta ruta y componente
-  };
-
+  const handleDashboardClick = () => navigate('/dashboard');
+  const handleExploreClick = () => navigate('/explore');
+  const handleLocationClick = () => navigate('/location');
+  const handleIncidentClick = () => navigate('/incidents');
+  const handleMediaClick = () => navigate('/media');
+  const handleDateTimeClick = () => navigate('/datetime');
+  const handleCategoryClick = () => navigate('/dashboard');
+  const handleDescriptionClick = () => navigate('/description');
+  
   const handleProfileClick = () => {
-    navigate('/profile'); // Necesitarás crear esta ruta y componente
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate('/profile');
+    setShowProfileMenu(false);
   };
 
   const handleNotificationsClick = () => {
-    navigate('/notifications'); // Necesitarás crear esta ruta y componente
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate('/notifications');
   };
+
+  const handleLoginClick = () => navigate('/login');
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -107,16 +117,48 @@ const CitizenReporter = () => {
             >
               Explore
             </button>
-            <Bell 
-              className="w-5 h-5 text-gray-600 cursor-pointer" 
-              onClick={handleNotificationsClick}
-            />
-            <img 
-              src="/api/placeholder/32/32" 
-              alt="Profile" 
-              className="w-8 h-8 rounded-full cursor-pointer" 
-              onClick={handleProfileClick}
-            />
+            {isAuthenticated ? (
+              <>
+                <Bell 
+                  className="w-5 h-5 text-gray-600 cursor-pointer" 
+                  onClick={handleNotificationsClick}
+                />
+                <div className="relative">
+                  <img 
+                    src="/api/placeholder/32/32" 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full cursor-pointer" 
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  />
+                  
+                  {/* Profile Dropdown Menu */}
+                  {showProfileMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                      <button
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
+                        onClick={handleProfileClick}
+                      >
+                        Profile
+                      </button>
+                      <button
+                        className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-red-600"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <button
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                onClick={handleLoginClick}
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -201,13 +243,13 @@ const CitizenReporter = () => {
 
       {/* Recent Reports */}
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <h2 className="text-xl font-semibold mb-4">Reportes de Incidentes</h2>
+        <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
         <div className="space-y-4">
           {recentReports.map((report) => (
             <div 
               key={report.id} 
               className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/report/${report.id}`)} // Navegación al detalle del reporte
+              onClick={() => navigate(`/report/${report.id}`)}
             >
               <div className="flex items-center gap-4">
                 <img
@@ -235,24 +277,50 @@ const CitizenReporter = () => {
   );
 };
 
-// Main App component with Router setup
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<CitizenReporter />} />
-        <Route path="/dashboard" element={<MainDashboard />} />
-        <Route path="/report" element={<IncidentReport />} />
-        {/* Necesitarás agregar estas nuevas rutas y crear sus componentes correspondientes */}
-        <Route path="/location" element={<Incidentmaps />} />
-        <Route path="/incidents" element={<IncidentList />} />
-        <Route path="/media" element={<div>Media Page</div>} />
-        <Route path="/datetime" element={<div>Date & Time Page</div>} />
-        <Route path="/description" element={<div>Description Page</div>} />
-        <Route path="/profile" element={<div>Profile Page</div>} />
-        <Route path="/notifications" element={<div>Notifications Page</div>} />
-        <Route path="/report/:id" element={<div>Report Detail Page</div>} />
-      </Routes>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/" element={<CitizenReporter />} />
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <MainDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/report" 
+            element={
+              <ProtectedRoute>
+                <IncidentReport />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/location" element={<Incidentmaps />} />
+          <Route path="/incidents" element={<IncidentList />} />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <div>Profile Page</div>
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/notifications" 
+            element={
+              <ProtectedRoute>
+                <div>Notifications Page</div>
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/report/:id" element={<div>Report Detail Page</div>} />
+        </Routes>
+      </AuthProvider>
     </Router>
   );
 }

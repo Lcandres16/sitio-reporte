@@ -1,28 +1,30 @@
 import React from 'react';
-import { MapPin } from 'lucide-react';
+import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const MainDashboard = () => {
   const navigate = useNavigate();
 
-  // Función para manejar la navegación según el botón
   const handleNavigation = (id) => {
     switch(id) {
-      case 1: // Reportar incidente
+      case 1:
         navigate('/report');
         break;
-      case 2: // Mapa de incidentes
+      case 2:
         navigate('location')
         break;
-      case 3: // Lista de reportes
+      case 3:
         navigate('/incidentlist')
         break;
-      case 4: // Contacto de autoridades
-        // Aquí irá la navegación a contactos cuando se implemente
+      case 4:
         break;
       default:
         break;
     }
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
   };
   
   const sections = [
@@ -37,7 +39,6 @@ const MainDashboard = () => {
       bgColor: "bg-blue-50",
       buttonColor: "bg-blue-500 hover:bg-blue-600"
     },
-    // ... resto de las secciones sin cambios
     {
       id: 2,
       title: "Mapa de incidentes",
@@ -75,13 +76,26 @@ const MainDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header sin cambios */}
-      <header className="border-b bg-white shadow-sm">
-        {/* ... código del header ... */}
+      {/* Header */}
+      <header className="border-b bg-white">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-xl cursor-pointer">
+              Reporte Ciudadano
+            </span>
+          </div>
+          <button 
+            onClick={handleHomeClick}
+            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"
+          >
+            <Home className="w-4 h-4" />
+            Inicio
+          </button>
+        </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-12">
+      <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Reporte Ciudadano</h1>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -89,33 +103,33 @@ const MainDashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {sections.map((section) => (
             <div 
               key={section.id} 
-              className={`group rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 ${section.bgColor}`}
+              className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden ${section.bgColor}`}
             >
               <div className="relative h-48 overflow-hidden">
                 <img
                   src={section.image}
                   alt={section.title}
-                  className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-opacity" />
+                <div className="absolute inset-0 bg-black bg-opacity-20 hover:bg-opacity-30 transition-opacity" />
               </div>
-              <div className="p-8">
+              <div className="p-4">
                 <div className="inline-block px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white bg-opacity-50">
                   {section.category}
                 </div>
-                <h3 className="text-2xl font-semibold mb-3 text-gray-800">
+                <h3 className="text-xl font-semibold mb-3 text-gray-800">
                   {section.subtitle}
                 </h3>
-                <p className="text-gray-600 mb-6 line-clamp-2">
+                <p className="text-sm text-gray-600 mb-6">
                   {section.description}
                 </p>
                 <button 
                   onClick={() => handleNavigation(section.id)}
-                  className={`${section.buttonColor} text-white px-6 py-3 rounded-lg font-medium transform hover:-translate-y-0.5 transition-all duration-200`}
+                  className={`${section.buttonColor} w-full text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200`}
                 >
                   {section.buttonText}
                 </button>
@@ -124,11 +138,6 @@ const MainDashboard = () => {
           ))}
         </div>
       </main>
-
-      {/* Footer sin cambios */}
-      <footer className="bg-white border-t mt-16">
-        {/* ... código del footer ... */}
-      </footer>
     </div>
   );
 };
