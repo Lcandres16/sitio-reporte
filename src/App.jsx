@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { Search, MapPin, FileText, Image, Calendar, Grid3X3, Menu, Bell, LogOut } from 'lucide-react';
 import { useAuth, AuthProvider } from './Context/AuthContext';
@@ -23,30 +23,41 @@ const CitizenReporter = () => {
   const navigate = useNavigate();
   const { isAuthenticated, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [reports, setReports] = useState([]);
   
-  const recentReports = [
-    {
-      id: 1,
-      title: "Pothole on Main Street",
-      timeAgo: "3 days ago",
-      status: "In progress",
-      image: "/api/placeholder/48/48"
-    },
-    {
-      id: 2,
-      title: "Graffiti on Park Bench",
-      timeAgo: "5 days ago",
-      status: "Completed",
-      image: "/api/placeholder/48/48"
-    },
-    {
-      id: 3,
-      title: "Broken Traffic Light",
-      timeAgo: "1 week ago",
-      status: "In progress",
-      image: "/api/placeholder/48/48"
-    }
-  ];
+  // Load reports from localStorage when component mounts
+  useEffect(() => {
+    const loadReports = () => {
+      try {
+        const storedReports = JSON.parse(localStorage.getItem('reports') || '[]');
+        setReports(storedReports);
+      } catch (error) {
+        console.error('Error loading reports:', error);
+        setReports([]);
+      }
+    };
+
+    loadReports();
+
+    // Add event listener for storage changes
+    window.addEventListener('storage', loadReports);
+    
+    return () => {
+      window.removeEventListener('storage', loadReports);
+    };
+  }, []);
+
+  // Format relative time
+  const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+  };
 
   // Navigation functions
   const handleCreateReport = () => {
@@ -71,7 +82,7 @@ const CitizenReporter = () => {
   const handleDateTimeClick = () => navigate('/datetime');
   const handleCategoryClick = () => navigate('/dashboard');
   const handleDescriptionClick = () => navigate('/description');
-  
+
   const handleProfileClick = () => {
     if (!isAuthenticated) {
       navigate('/login');
@@ -244,34 +255,60 @@ const CitizenReporter = () => {
       {/* Recent Reports */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
-        <div className="space-y-4">
-          {recentReports.map((report) => (
-            <div 
-              key={report.id} 
-              className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => navigate(`/report/${report.id}`)}
-            >
-              <div className="flex items-center gap-4">
-                <img
-                  src={report.image}
-                  alt={report.title}
-                  className="w-12 h-12 rounded-lg object-cover"
-                />
-                <div>
-                  <h3 className="font-medium">{report.title}</h3>
-                  <p className="text-sm text-gray-500">{report.timeAgo}</p>
+        {reports.length === 0 ? (
+          <div className="text-center py-8 bg-white rounded-lg border">
+            <p className="text-gray-500">No reports yet. Be the first to create one!</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {reports.map((report) => (
+              <div 
+                key={report.id} 
+                className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => navigate(`/report/${report.id}`)}
+              >
+                <div className="flex items-center gap-4">
+                  <img
+                    src={report.image || '/api/placeholder/48/48'}
+                    alt={report.title}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div>
+                    <h3 className="font-medium">{report.title}</h3>
+                    <div className="flex gap-2 text-sm text-gray-500">
+                      <span>{getTimeAgo(report.date)}</span>
+                      {report.location && (
+                        <>
+                          <span>•</span>
+                          <span>{report.location}</span>
+                        </>
+                      )}
+                    </div>
+                    {report.description && (
+                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                        {report.description}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <span className={`px-3 py-1 rounded-full text-sm ${
+                    report.status === "Completed" 
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}>
+                    {report.status}
+                  </span>
+                  {report.category && (
+                    <span className="text-sm text-gray-500">
+                      {report.category}
+                    </span>
+                  )}
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-sm ${
-                report.status === "Completed" 
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
-              }`}>
-                {report.status}
-              </span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
