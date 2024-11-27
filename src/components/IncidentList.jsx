@@ -1,55 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, FileText, Image, Calendar, Grid, AlignJustify, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const IncidentList = () => {
   const [selectedType, setSelectedType] = useState('');
+  const [incidents, setIncidents] = useState([]);
   const navigate = useNavigate();
 
-  const incidents = [
-    {
-      id: 1,
-      type: "Servicios Básicos",
-      description: "Falta de agua potable",
-      location: "Calle Principal y 5ta Avenida",
-      date: "2024-03-15",
-      status: "En Investigación",
-      severity: "Medio",
-      image: "/api/placeholder/300/200"
-    },
-    {
-      id: 2,
-      type: "Emergencias",
-      description: "Incendio en local comercial",
-      location: "Parque Central",
-      date: "2024-03-14",
-      status: "Resuelto",
-      severity: "Alto",
-      image: "/api/placeholder/300/200"
-    },
-    {
-      id: 3,
-      type: "Servicios Básicos",
-      description: "Corte de energía eléctrica",
-      location: "Boulevard Oeste",
-      date: "2024-03-13",
-      status: "En Proceso",
-      severity: "Medio",
-      image: "/api/placeholder/300/200"
-    }
-  ];
+  // Cargar incidentes desde localStorage al montar el componente
+  useEffect(() => {
+    const loadedIncidents = JSON.parse(localStorage.getItem('reports') || '[]');
+    console.log('Loaded incidents:', loadedIncidents);
+    setIncidents(loadedIncidents);
+  }, []);
 
-  const filteredIncidents = selectedType 
+  // Obtener tipos de incidentes únicos
+  const incidentTypes = ['Público alumbrado', 'Otros'];
+
+  // Filtrar incidentes por tipo seleccionado
+  const filteredIncidents = selectedType
     ? incidents.filter(incident => incident.type === selectedType)
     : incidents;
 
   const handleHomeClick = () => {
-    navigate('/');  // Navega a la ruta raíz definida en App.jsx
+    navigate('/');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Cabecera */}
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -67,101 +46,86 @@ const IncidentList = () => {
         </div>
       </header>
 
-      {/* Navigation Bar */}
+      {/* Barra de navegación */}
       <div className="bg-white border-b">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center px-4">
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <MapPin className="w-5 h-5 mb-1" />
-              <span className="text-xs">Location</span>
-            </button>
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <FileText className="w-5 h-5 mb-1" />
-              <span className="text-xs">Incident</span>
-            </button>
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <Image className="w-5 h-5 mb-1" />
-              <span className="text-xs">Media</span>
-            </button>
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <Calendar className="w-5 h-5 mb-1" />
-              <span className="text-xs">Date & Time</span>
-            </button>
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <Grid className="w-5 h-5 mb-1" />
-              <span className="text-xs">Category</span>
-            </button>
-            <button className="flex flex-col items-center py-3 px-6 hover:bg-gray-50 text-gray-700">
-              <AlignJustify className="w-5 h-5 mb-1" />
-              <span className="text-xs">Description</span>
-            </button>
-          </div>
-        </div>
+        {/* ... código existente de la barra de navegación ... */}
       </div>
 
-      {/* Main Content */}
+      {/* Contenido principal */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Single Filter */}
+        {/* Filtro por tipo de incidente */}
         <div className="mb-6">
           <select 
             className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={selectedType}
             onChange={(e) => setSelectedType(e.target.value)}
           >
-            <option value="">Todos los Tipos</option>
-            <option value="Servicios Básicos">Servicios Básicos</option>
-            <option value="Emergencias">Emergencias</option>
+            <option value="">Todos los tipos</option>
+            {incidentTypes.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
           </select>
         </div>
 
-        {/* Incidents Grid */}
+        {/* Grid de incidentes */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredIncidents.map((incident) => (
-            <div 
-              key={incident.id}
-              className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            >
-              <img 
-                src={incident.image} 
-                alt={incident.type}
-                className="w-full h-48 object-cover rounded-t-lg"
-              />
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-2">{incident.type}</h3>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Descripción:</span> {incident.description}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Ubicación:</span> {incident.location}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    <span className="font-medium">Fecha:</span> {incident.date}
-                  </p>
-                  <div className="flex justify-between items-center">
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      incident.status === "Resuelto" 
-                        ? "bg-green-100 text-green-800"
-                        : incident.status === "En Proceso"
-                        ? "bg-yellow-100 text-yellow-800"
-                        : "bg-blue-100 text-blue-800"
-                    }`}>
-                      {incident.status}
-                    </span>
-                    <span className={`px-3 py-1 rounded-full text-sm ${
-                      incident.severity === "Alto"
-                        ? "bg-red-100 text-red-800"
-                        : incident.severity === "Medio"
-                        ? "bg-orange-100 text-orange-800"
-                        : "bg-green-100 text-green-800"
-                    }`}>
-                      {incident.severity}
-                    </span>
+          {filteredIncidents.length === 0 ? (
+            <div className="col-span-full text-center py-8 bg-white rounded-lg border">
+              <p className="text-gray-500">No hay incidentes para mostrar</p>
+            </div>
+          ) : (
+            filteredIncidents.map((incident) => (
+              <div 
+                key={incident.id}
+                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              >
+                <img 
+                  src={incident.image} 
+                  alt={incident.type}
+                  className="w-full h-48 object-cover rounded-t-lg"
+                />
+                <div className="p-4">
+                  <h3 className="font-semibold text-lg mb-2">{incident.title}</h3>
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Tipo:</span> {incident.type}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Descripción:</span> {incident.description}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Ubicación:</span> {incident.location}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      <span className="font-medium">Fecha:</span> {new Date(incident.date).toLocaleDateString()}
+                    </p>
+                    <div className="flex justify-between items-center">
+                      <span className={`px-3 py-1 rounded-full text-sm ${
+                        incident.status === "Resuelto" 
+                          ? "bg-green-100 text-green-800"
+                          : incident.status === "En Proceso"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-blue-100 text-blue-800"
+                      }`}>
+                        {incident.status}
+                      </span>
+                      <span className={`px-3 py-1 rounded-full text-sm ${
+                        incident.severity === "Alto"
+                          ? "bg-red-100 text-red-800"
+                          : incident.severity === "Medio"
+                          ? "bg-orange-100 text-orange-800"
+                          : "bg-green-100 text-green-800"
+                      }`}>
+                        {incident.severity}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

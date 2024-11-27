@@ -9,22 +9,28 @@ const IncidentReport = () => {
     description: '',
     category: '',
     address: '',
+    type: '' // Nuevo campo para el tipo de incidente
   });
-  
+
+  // Categorías expandidas con tipos
   const categories = [
-    "Accidente de tráfico",
-    "Daño en vía pública",
-    "Alumbrado público",
-    "Basura/Limpieza",
-    "Seguridad",
-    "Otros"
+    { name: "Accidente de tráfico", type: "Emergencias" },
+    { name: "Daño en vía pública", type: "Servicios Básicos" },
+    { name: "Alumbrado público", type: "Servicios Básicos" },
+    { name: "Basura/Limpieza", type: "Servicios Básicos" },
+    { name: "Seguridad", type: "Emergencias" },
+    { name: "Otros", type: "Otros" }
   ];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      // Establecer automáticamente el tipo según la categoría seleccionada
+      ...(name === 'category' && {
+        type: categories.find(cat => cat.name === value)?.type || 'Otros'
+      })
     }));
   };
 
@@ -45,36 +51,38 @@ const IncidentReport = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Crear nuevo reporte
+
+    // Crear nuevo reporte con información adicional del tipo
     const newReport = {
       id: Date.now(),
-      title: formData.category || 'Nuevo Reporte', // Usar categoría como título o un título por defecto
+      title: formData.category || 'Nuevo Reporte',
       timeAgo: 'Just now',
-      status: 'In progress',
+      status: 'En Proceso',
       image: imagePreview || '/api/placeholder/48/48',
       description: formData.description,
       location: formData.address,
       category: formData.category,
-      date: new Date().toISOString()
+      type: formData.type || '', // Guardar el tipo de incidente
+      date: new Date().toISOString(),
+      severity: 'Medio'
     };
 
     // Obtener reportes existentes
     const existingReports = JSON.parse(localStorage.getItem('reports') || '[]');
-    
-    // Agregar nuevo reporte al inicio del array
+
+    // Agregar nuevo reporte al principio del array
     const updatedReports = [newReport, ...existingReports];
-    
+
     // Guardar en localStorage
     localStorage.setItem('reports', JSON.stringify(updatedReports));
 
-    // Redireccionar a la página principal
+    // Redirigir a la página principal
     navigate('/');
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+      {/* Encabezado */}
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -89,7 +97,7 @@ const IncidentReport = () => {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Contenido principal */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <form onSubmit={handleSubmit}>
           <h1 className="text-3xl font-bold mb-2">Report a problem</h1>
@@ -97,7 +105,7 @@ const IncidentReport = () => {
             Your report will be public. Anyone can see your username and the photo you upload.
           </p>
 
-          {/* Chat Bot Button */}
+          {/* Botón de Chatbot */}
           <button 
             type="button"
             className="w-full bg-gray-100 text-left px-4 py-3 rounded-lg hover:bg-gray-200 mb-8"
@@ -108,7 +116,7 @@ const IncidentReport = () => {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold">Add more information (optional)</h2>
 
-            {/* Description Field */}
+            {/* Campo de descripción */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Description
@@ -122,7 +130,7 @@ const IncidentReport = () => {
               />
             </div>
 
-            {/* Category Dropdown */}
+            {/* Dropdown de categoría */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Category
@@ -135,14 +143,14 @@ const IncidentReport = () => {
               >
                 <option value="">Select a category</option>
                 {categories.map((category, index) => (
-                  <option key={index} value={category}>
-                    {category}
+                  <option key={index} value={category.name}>
+                    {category.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Address Field */}
+            {/* Campo de dirección */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Address
@@ -157,7 +165,7 @@ const IncidentReport = () => {
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Carga de imagen */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Upload Photo
@@ -199,7 +207,7 @@ const IncidentReport = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Botón de envío */}
             <button 
               type="submit"
               className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors"
