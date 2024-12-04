@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Search, MapPin, FileText, Image, Calendar, Grid3X3, Menu, Bell, LogOut } from 'lucide-react';
+import { Search, MapPin, FileText, Image, MessageCircle, Grid3X3, Menu, Bell, LogOut } from 'lucide-react';
 import { useAuth, AuthProvider } from './Context/AuthContext';
 import MainDashboard from './components/MainDashboard';
 import IncidentReport from './components/IncidentReport';
 import Incidentmaps from './components/Incidentmaps';
 import IncidentList from './components/IncidentList';
 import LoginPage from './components/LoginPage';
+import NeighborhoodChat from './components/NeighborhoodChat';
+import CommunicationMedia from './components/CommunicationMedia';
+
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -79,7 +82,13 @@ const CitizenReporter = () => {
   const handleLocationClick = () => navigate('/location');
   const handleIncidentClick = () => navigate('/incidents');
   const handleMediaClick = () => navigate('/media');
-  const handleDateTimeClick = () => navigate('/datetime');
+  const handleCommunityClick = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    navigate('/community-chat');
+  };
   const handleCategoryClick = () => navigate('/dashboard');
   const handleDescriptionClick = () => navigate('/description');
 
@@ -229,11 +238,11 @@ const CitizenReporter = () => {
             Media
           </button>
           <button 
-            onClick={handleDateTimeClick}
+            onClick={handleCommunityClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
-            <Calendar className="w-5 h-5" />
-            Date & Time
+            <MessageCircle className="w-5 h-5" />
+            Community Chat
           </button>
           <button 
             onClick={handleCategoryClick}
@@ -337,6 +346,14 @@ function App() {
               </ProtectedRoute>
             } 
           />
+          <Route 
+            path="/community-chat" 
+            element={
+              <ProtectedRoute>
+                <NeighborhoodChat />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/location" element={<Incidentmaps />} />
           <Route path="/incidents" element={<IncidentList />} />
           <Route 
@@ -356,6 +373,7 @@ function App() {
             } 
           />
           <Route path="/report/:id" element={<div>Report Detail Page</div>} />
+          <Route path="/media" element={<CommunicationMedia />} />
         </Routes>
       </AuthProvider>
     </Router>
