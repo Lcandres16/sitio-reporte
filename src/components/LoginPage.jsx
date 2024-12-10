@@ -1,11 +1,10 @@
-// src/components/LoginPage.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../Context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -14,46 +13,42 @@ const LoginPage = () => {
     name: ''
   });
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
     try {
-      if (isRegistering) {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        
-        if (users.some(user => user.email === formData.email)) {
-          setError('Email already registered');
-          return;
-        }
+      if (!formData.email || !formData.password) {
+        setError('Please fill in all required fields');
+        return;
+      }
 
-        const newUser = {
-          id: Date.now(),
-          name: formData.name,
-          email: formData.email,
-          password: formData.password
-        };
+      if (isRegistering && !formData.name) {
+        setError('Name is required for registration');
+        return;
+      }
 
-        users.push(newUser);
-        localStorage.setItem('users', JSON.stringify(users));
-        login(newUser);
-        navigate('/', { replace: true });
+      const authResult = await login({
+        email: formData.email,
+        password: formData.password,
+        ...(isRegistering && { name: formData.name })
+      });
+
+      if (authResult.success) {
+        navigate('/dashboard');
       } else {
-        const users = JSON.parse(localStorage.getItem('users') || '[]');
-        const user = users.find(
-          u => u.email === formData.email && u.password === formData.password
-        );
-
-        if (user) {
-          login(user);
-          navigate('/', { replace: true });
-        } else {
-          setError('Invalid email or password');
-        }
+        setError(authResult.message || 'Authentication failed');
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
       console.error('Auth error:', err);
+      setError('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -68,7 +63,16 @@ const LoginPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
-        <div>
+        <div className="text-center">
+          <img 
+            src="/admin.jpg" 
+            alt="admin" 
+            className="mx-auto h-12 w-auto"
+            onError={(e) => {
+              // Fallback image in case admin.jpg is not found
+              e.target.src = 'https://via.placeholder.com/48';
+            }}
+          />
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
             {isRegistering ? 'Create your account' : 'Sign in to your account'}
           </h2>
@@ -84,59 +88,65 @@ const LoginPage = () => {
           <div className="space-y-6 rounded-md shadow-sm">
             {isRegistering && (
               <div>
-                <label htmlFor="name" className="sr-only">
+                <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                   Name
                 </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required={isRegistering}
-                  className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  placeholder="Full name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                />
+                <div className="mt-2">
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required={isRegistering}
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    placeholder="Full name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
             )}
 
             <div>
-              <label htmlFor="email" className="sr-only">
+              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                 Email address
               </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="relative block w-full rounded-t-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleInputChange}
-              />
+              <div className="mt-2">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder="Email address"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
 
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="relative block w-full rounded-b-md border-0 py-1.5 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="Password"
-                value={formData.password}
-                onChange={handleInputChange}
-              />
+              <div className="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder="Password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
           </div>
 
           <div>
             <button
               type="submit"
-              className="group relative flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
               {isRegistering ? 'Register' : 'Sign in'}
             </button>

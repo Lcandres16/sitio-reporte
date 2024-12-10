@@ -1,41 +1,83 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
 
-  useEffect(() => {
-    // Check for stored user data when the app loads
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+  const login = async (credentials) => {
+    try {
+      // Simulated authentication (replace with actual API call)
+      const mockUser = {
+        email: credentials.email,
+        name: credentials.name || 'User',
+        token: 'mock-token-' + Date.now()
+      };
+      
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      setUser(mockUser);
+      
+      return {
+        success: true,
+        message: 'Login successful',
+        user: mockUser
+      };
+
+      // Uncomment and modify the following when you have a real backend
+      /*
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Login failed');
+      }
+
+      const data = await response.json();
+      const userInfo = {
+        email: credentials.email,
+        token: data.token,
+        name: data.name
+      };
+
+      localStorage.setItem('user', JSON.stringify(userInfo));
+      setUser(userInfo);
+
+      return {
+        success: true,
+        message: 'Login successful',
+        user: userInfo
+      };
+      */
+
+    } catch (error) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        message: error.message || 'An error occurred during login'
+      };
     }
-    setIsLoading(false);
-  }, []);
-
-  const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
   };
 
   const logout = () => {
-    setUser(null);
     localStorage.removeItem('user');
+    setUser(null);
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  const isAuthenticated = () => {
+    return user !== null;
+  };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      login, 
-      logout, 
-      isAuthenticated: !!user 
-    }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

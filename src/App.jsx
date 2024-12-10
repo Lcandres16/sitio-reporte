@@ -10,7 +10,6 @@ import LoginPage from './components/LoginPage';
 import NeighborhoodChat from './components/NeighborhoodChat';
 import CommunicationMedia from './components/CommunicationMedia';
 
-
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
