@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext } from 'react';
+// AuthContext.js
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
@@ -10,74 +11,92 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      // Simulated authentication (replace with actual API call)
-      const mockUser = {
-        email: credentials.email,
-        name: credentials.name || 'User',
-        token: 'mock-token-' + Date.now()
-      };
-      
-      localStorage.setItem('user', JSON.stringify(mockUser));
-      setUser(mockUser);
-      
-      return {
-        success: true,
-        message: 'Login successful',
-        user: mockUser
-      };
-
-      // Uncomment and modify the following when you have a real backend
-      /*
-      const response = await fetch('/api/login', {
+      const response = await fetch('http://localhost:3000/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(credentials)
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        }),
+        credentials: 'include'
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Guardar el token y la información del usuario
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        return { success: true };
+      } else {
+        // Manejar errores de autenticación
+        console.error('Error de login:', data.message);
+        return { 
+          success: false, 
+          message: data.message || 'Error en la autenticación'
+        };
       }
+    } catch (error) {
+      console.error('Error en la petición:', error);
+      return { 
+        success: false, 
+        message: 'Error de conexión. Por favor, intente más tarde.'
+      };
+    }
+  };
+
+  const register = async (userData) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          nombre: userData.name,
+          email: userData.email,
+          password: userData.password
+        })
+      });
 
       const data = await response.json();
-      const userInfo = {
-        email: credentials.email,
-        token: data.token,
-        name: data.name
-      };
 
-      localStorage.setItem('user', JSON.stringify(userInfo));
-      setUser(userInfo);
-
-      return {
-        success: true,
-        message: 'Login successful',
-        user: userInfo
-      };
-      */
-
+      if (response.ok) {
+        // Guardar el token y la información del usuario
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        return { success: true };
+      } else {
+        return { 
+          success: false, 
+          message: data.message || 'Error en el registro'
+        };
+      }
     } catch (error) {
-      console.error('Login error:', error);
-      return {
-        success: false,
-        message: error.message || 'An error occurred during login'
+      console.error('Error en el registro:', error);
+      return { 
+        success: false, 
+        message: 'Error de conexión. Por favor, intente más tarde.'
       };
     }
   };
 
   const logout = () => {
+    localStorage.removeItem('token');
     localStorage.removeItem('user');
     setUser(null);
   };
 
   const isAuthenticated = () => {
-    return user !== null;
+    return !!localStorage.getItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );
@@ -86,9 +105,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
 };
-
-export default AuthContext;

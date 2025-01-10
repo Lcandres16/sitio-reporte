@@ -4,7 +4,7 @@ import { useAuth } from '../Context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, register, isAuthenticated } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
@@ -13,7 +13,6 @@ const LoginPage = () => {
     name: ''
   });
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated()) {
       navigate('/dashboard');
@@ -35,11 +34,16 @@ const LoginPage = () => {
         return;
       }
 
-      const authResult = await login({
-        email: formData.email,
-        password: formData.password,
-        ...(isRegistering && { name: formData.name })
-      });
+      const authResult = isRegistering 
+        ? await register({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password
+          })
+        : await login({
+            email: formData.email,
+            password: formData.password
+          });
 
       if (authResult.success) {
         navigate('/dashboard');
@@ -65,11 +69,10 @@ const LoginPage = () => {
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
           <img 
-            src="/admin.jpg" 
-            alt="admin" 
+            src="/logo.png" 
+            alt="Logo" 
             className="mx-auto h-12 w-auto"
             onError={(e) => {
-              // Fallback image in case admin.jpg is not found
               e.target.src = 'https://via.placeholder.com/48';
             }}
           />
@@ -155,7 +158,15 @@ const LoginPage = () => {
           <div className="text-center">
             <button
               type="button"
-              onClick={() => setIsRegistering(!isRegistering)}
+              onClick={() => {
+                setIsRegistering(!isRegistering);
+                setError('');
+                setFormData({
+                  email: '',
+                  password: '',
+                  name: ''
+                });
+              }}
               className="text-sm text-indigo-600 hover:text-indigo-500"
             >
               {isRegistering

@@ -1,42 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../Context/AuthContext'; // Asegúrate de tener este contexto
 
 const IncidentReport = () => {
   const navigate = useNavigate();
+  const { user } = useAuth(); // Obtener información del usuario autenticado
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    description: '',
-    category: '',
-    address: '',
-    type: '' // Nuevo campo para el tipo de incidente
+    titulo: '',
+    descripcion: '',
+    categoria_id: '',
+    ubicacion: '',
+    estado: 'no_evaluado'
   });
 
-  // Categorías expandidas con tipos
-  const categories = [
-    { name: "Accidente de tráfico", type: "Emergencias" },
-    { name: "Daño en vía pública", type: "Servicios Básicos" },
-    { name: "Alumbrado público", type: "Servicios Básicos" },
-    { name: "Basura/Limpieza", type: "Servicios Básicos" },
-    { name: "Seguridad", type: "Emergencias" },
-    { name: "Otros", type: "Otros" }
-  ];
+  // Verificar autenticación
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
+  const [categorias, setCategorias] = useState([]);
+
+  // Cargar categorías desde la base de datos
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/categorias');
+        const data = await response.json();
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error al cargar categorías:', error);
+      }
+    };
+
+    fetchCategorias();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value,
-      // Establecer automáticamente el tipo según la categoría seleccionada
-      ...(name === 'category' && {
-        type: categories.find(cat => cat.name === value)?.type || 'Otros'
-      })
+      [name]: value
     }));
   };
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
@@ -47,42 +63,52 @@ const IncidentReport = () => {
 
   const removeImage = () => {
     setImagePreview(null);
+    setImageFile(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    // Crear nuevo reporte con información adicional del tipo
-    const newReport = {
-      id: Date.now(),
-      title: formData.category || 'Nuevo Reporte',
-      timeAgo: 'Just now',
-      status: 'En Proceso',
-      image: imagePreview || '/api/placeholder/48/48',
-      description: formData.description,
-      location: formData.address,
-      category: formData.category,
-      type: formData.type || '', // Guardar el tipo de incidente
-      date: new Date().toISOString(),
-      severity: 'Medio'
-    };
+    try {
+      // Crear FormData para manejar la imagen
+      const formDataToSend = new FormData();
+      formDataToSend.append('usuario_id', user.id);
+      formDataToSend.append('titulo', formData.titulo);
+      formDataToSend.append('descripcion', formData.descripcion);
+      formDataToSend.append('categoria_id', formData.categoria_id);
+      formDataToSend.append('ubicacion', formData.ubicacion);
+      formDataToSend.append('estado', formData.estado);
+      
+      if (imageFile) {
+        formDataToSend.append('imagen', imageFile);
+      }
 
-    // Obtener reportes existentes
-    const existingReports = JSON.parse(localStorage.getItem('reports') || '[]');
+      // Enviar el reporte al backend
+      const response = await fetch('http://localhost:3000/api/reportes', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: formDataToSend
+      });
 
-    // Agregar nuevo reporte al principio del array
-    const updatedReports = [newReport, ...existingReports];
+      if (!response.ok) {
+        throw new Error('Error al crear el reporte');
+      }
 
-    // Guardar en localStorage
-    localStorage.setItem('reports', JSON.stringify(updatedReports));
-
-    // Redirigir a la página principal
-    navigate('/');
+      // Redirigir a la página principal
+      navigate('/');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al crear el reporte. Por favor, intente nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Encabezado */}
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -91,91 +117,104 @@ const IncidentReport = () => {
               className="flex items-center gap-2 hover:text-blue-500"
             >
               <MapPin className="w-6 h-6" />
-              <span className="font-bold text-xl">Reporte Cuidadano</span>
+              <span className="font-bold text-xl">Reporte Ciudadano</span>
             </button>
           </div>
+          {user && (
+            <div className="text-sm text-gray-600">
+              Reportando como: {user.nombre}
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Contenido principal */}
       <main className="max-w-4xl mx-auto px-4 py-8">
         <form onSubmit={handleSubmit}>
-          <h1 className="text-3xl font-bold mb-2">Report a problem</h1>
+          <h1 className="text-3xl font-bold mb-2">Reportar un problema</h1>
           <p className="text-gray-600 mb-8">
-            Your report will be public. Anyone can see your username and the photo you upload.
+            Su reporte será público. Cualquiera podrá ver su nombre y la foto que suba.
           </p>
 
-          {/* Botón de Chatbot */}
-          <button 
-            type="button"
-            className="w-full bg-gray-100 text-left px-4 py-3 rounded-lg hover:bg-gray-200 mb-8"
-          >
-            Start chatting with our bot
-          </button>
-
           <div className="space-y-6">
-            <h2 className="text-xl font-semibold">Add more information (optional)</h2>
-
-            {/* Campo de descripción */}
+            {/* Título del reporte */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description
+                Título
               </label>
-              <textarea
-                name="description"
-                value={formData.description}
+              <input
+                type="text"
+                name="titulo"
+                value={formData.titulo}
                 onChange={handleInputChange}
-                className="w-full h-32 px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Describe the problem..."
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Título breve del problema..."
+                required
               />
             </div>
 
-            {/* Dropdown de categoría */}
+            {/* Descripción */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Category
+                Descripción
+              </label>
+              <textarea
+                name="descripcion"
+                value={formData.descripcion}
+                onChange={handleInputChange}
+                className="w-full h-32 px-4 py-2 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Describe el problema..."
+                required
+              />
+            </div>
+
+            {/* Categoría */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categoría
               </label>
               <select 
-                name="category"
-                value={formData.category}
+                name="categoria_id"
+                value={formData.categoria_id}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
               >
-                <option value="">Select a category</option>
-                {categories.map((category, index) => (
-                  <option key={index} value={category.name}>
-                    {category.name}
+                <option value="">Seleccione una categoría</option>
+                {categorias.map((categoria) => (
+                  <option key={categoria.id} value={categoria.id}>
+                    {categoria.nombre}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Campo de dirección */}
+            {/* Ubicación */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Address
+                Ubicación
               </label>
               <input
                 type="text"
-                name="address"
-                value={formData.address}
+                name="ubicacion"
+                value={formData.ubicacion}
                 onChange={handleInputChange}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="Enter the location..."
+                placeholder="Ingrese la ubicación..."
+                required
               />
             </div>
 
             {/* Carga de imagen */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Upload Photo
+                Subir Foto
               </label>
               <div className="relative">
                 {imagePreview ? (
                   <div className="relative">
                     <img
                       src={imagePreview}
-                      alt="Preview"
+                      alt="Vista previa"
                       className="w-full h-96 object-cover rounded-lg"
                     />
                     <button
@@ -200,7 +239,7 @@ const IncidentReport = () => {
                       className="cursor-pointer flex flex-col items-center"
                     >
                       <Upload className="w-12 h-12 text-gray-400 mb-2" />
-                      <span className="text-gray-600">Click to upload a photo</span>
+                      <span className="text-gray-600">Haga clic para subir una foto</span>
                     </label>
                   </div>
                 )}
@@ -210,9 +249,10 @@ const IncidentReport = () => {
             {/* Botón de envío */}
             <button 
               type="submit"
-              className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors"
+              disabled={loading}
+              className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition-colors disabled:bg-blue-300"
             >
-              Submit
+              {loading ? 'Enviando...' : 'Enviar reporte'}
             </button>
           </div>
         </form>
