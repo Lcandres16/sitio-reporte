@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Search, MapPin, FileText, Image, MessageCircle, Grid3X3, Menu, Bell, LogOut } from 'lucide-react';
+import { Search, MapPin, FileText, Image, MessageCircle, Grid3X3, Menu, Bell, LogOut, Upload, X } from 'lucide-react';
 import { useAuth, AuthProvider } from './Context/AuthContext';
 import MainDashboard from './components/MainDashboard';
 import IncidentReport from './components/IncidentReport';
@@ -26,39 +26,46 @@ const CitizenReporter = () => {
   const { isAuthenticated, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [reports, setReports] = useState([]);
-  
-  // Load reports from localStorage when component mounts
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
-    const loadReports = () => {
+    const fetchReports = async () => {
       try {
-        const storedReports = JSON.parse(localStorage.getItem('reports') || '[]');
-        setReports(storedReports);
+        const response = await fetch('http://localhost:3000/api/reportes', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Error al cargar los reportes');
+        }
+        
+        const data = await response.json();
+        setReports(data);
+        setLoading(false);
       } catch (error) {
-        console.error('Error loading reports:', error);
-        setReports([]);
+        console.error('Error fetching reports:', error);
+        setError('No se pudieron cargar los reportes');
+        setLoading(false);
       }
     };
 
-    loadReports();
-
-    // Add event listener for storage changes
-    window.addEventListener('storage', loadReports);
-    
-    return () => {
-      window.removeEventListener('storage', loadReports);
-    };
+    fetchReports();
+    const interval = setInterval(fetchReports, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
-  // Format relative time
   const getTimeAgo = (dateString) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
     
-    if (diffInSeconds < 60) return 'Just now';
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
-    return `${Math.floor(diffInSeconds / 86400)} days ago`;
+    if (diffInSeconds < 60) return 'Hace un momento';
+    if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} minutos`;
+    if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
+    return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
   };
 
   // Navigation functions
@@ -263,7 +270,16 @@ const CitizenReporter = () => {
       {/* Recent Reports */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
-        {reports.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading reports...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8 bg-red-50 rounded-lg border border-red-200">
+            <p className="text-red-600">{error}</p>
+          </div>
+        ) : reports.length === 0 ? (
           <div className="text-center py-8 bg-white rounded-lg border">
             <p className="text-gray-500">No reports yet. Be the first to create one!</p>
           </div>
@@ -276,40 +292,50 @@ const CitizenReporter = () => {
                 onClick={() => navigate(`/report/${report.id}`)}
               >
                 <div className="flex items-center gap-4">
-                  <img
-                    src={report.image || '/api/placeholder/48/48'}
-                    alt={report.title}
-                    className="w-12 h-12 rounded-lg object-cover"
-                  />
+                  {report.imagen ? (
+                    <img
+                      src={`http://localhost:3000/${report.imagen}`}
+                      alt={report.titulo}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-gray-400" />
+                    </div>
+                  )}
                   <div>
-                    <h3 className="font-medium">{report.title}</h3>
+                    <h3 className="font-medium">{report.titulo}</h3>
                     <div className="flex gap-2 text-sm text-gray-500">
-                      <span>{getTimeAgo(report.date)}</span>
-                      {report.location && (
+                      <span>{getTimeAgo(report.created_at)}</span>
+                      {report.ubicacion && (
                         <>
                           <span>•</span>
-                          <span>{report.location}</span>
+                          <span>{report.ubicacion}</span>
                         </>
                       )}
                     </div>
-                    {report.description && (
+                    {report.descripcion && (
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                        {report.description}
+                        {report.descripcion}
                       </p>
                     )}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <span className={`px-3 py-1 rounded-full text-sm ${
-                    report.status === "Completed" 
+                    report.estado === "completado" 
                       ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
+                      : report.estado === "en_proceso"
+                      ? "bg-yellow-100 text-yellow-800"
+                      : "bg-gray-100 text-gray-800"
                   }`}>
-                    {report.status}
+                    {report.estado === "completado" ? "Completado" :
+                     report.estado === "en_proceso" ? "En Proceso" :
+                     "No Evaluado"}
                   </span>
-                  {report.category && (
+                  {report.categoria && (
                     <span className="text-sm text-gray-500">
-                      {report.category}
+                      {report.categoria.nombre}
                     </span>
                   )}
                 </div>

@@ -1,3 +1,4 @@
+// reporte.controller.js
 const db = require('../config/database');
 
 const reporteController = {
@@ -50,6 +51,29 @@ const reporteController = {
       res.status(500).json({
         success: false,
         message: 'Error al crear el reporte'
+      });
+    }
+  },
+
+  obtenerReportes: async (req, res) => {
+    try {
+      const query = `
+        SELECT r.*, i.url as imagen_url, c.nombre as categoria_nombre,
+               u.nombre as usuario_nombre
+        FROM reportes r 
+        LEFT JOIN imagenes i ON r.id = i.reporte_id
+        LEFT JOIN categorias c ON r.categoria_id = c.id
+        LEFT JOIN usuarios u ON r.usuario_id = u.id
+        ORDER BY r.created_at DESC
+      `;
+      
+      const [reportes] = await db.query(query);
+      res.json(reportes);
+    } catch (error) {
+      console.error('Error al obtener reportes:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error al obtener los reportes'
       });
     }
   },

@@ -1,3 +1,4 @@
+// reporte.routes.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -18,8 +19,9 @@ const upload = multer({ storage: storage });
 // Controlador de reportes
 const reporteController = require('../controllers/reporte.controller');
 
-// Rutas - nota que quitamos '/reportes' porque el prefijo se añade en app.js
+// Rutas
 router.post('/', upload.single('imagen'), reporteController.crearReporte);
+router.get('/', reporteController.obtenerReportes);  // Nueva ruta añadida
 router.get('/categorias', reporteController.obtenerCategorias);
 
 module.exports = router;
