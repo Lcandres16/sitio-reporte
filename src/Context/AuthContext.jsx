@@ -1,6 +1,9 @@
+// AuthContext.jsx
 import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -10,28 +13,27 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/login', {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password
-        }),
+        body: JSON.stringify(credentials),
         credentials: 'include'
       });
 
       const data = await response.json();
       
       if (response.ok) {
-        // Guardar el token y la información del usuario
+        const userData = {
+          ...data.user,
+          isAdmin: false
+        };
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
         return { success: true };
       } else {
-        console.error('Error de login:', data.message);
         return {
           success: false,
           message: data.message || 'Error en la autenticación'
@@ -48,24 +50,25 @@ export const AuthProvider = ({ children }) => {
 
   const adminLogin = async (credentials) => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/admin/login', {
+      const response = await fetch(`${API_URL}/api/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password
-        }),
+        body: JSON.stringify(credentials),
         credentials: 'include'
       });
-
+  
       const data = await response.json();
       
-      if (response.ok && data.user.isAdmin) {
+      if (response.ok && data.success) {
+        const userData = {
+          ...data.user,
+          isAdmin: true
+        };
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify({...data.user, isAdmin: true}));
-        setUser({...data.user, isAdmin: true});
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
         return { success: true };
       } else {
         return {
@@ -84,7 +87,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
-      const response = await fetch('http://localhost:3000/api/auth/register', {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -99,9 +102,13 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
+        const userData = {
+          ...data.user,
+          isAdmin: false
+        };
         localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setUser(data.user);
+        localStorage.setItem('user', JSON.stringify(userData));
+        setUser(userData);
         return { success: true };
       } else {
         return {
@@ -125,7 +132,11 @@ export const AuthProvider = ({ children }) => {
   };
 
   const isAuthenticated = () => {
-    return !!localStorage.getItem('token');
+    return !!user && !!localStorage.getItem('token');
+  };
+
+  const isAdmin = () => {
+    return user?.isAdmin === true;
   };
 
   return (
@@ -135,7 +146,8 @@ export const AuthProvider = ({ children }) => {
       adminLogin, 
       register, 
       logout, 
-      isAuthenticated 
+      isAuthenticated,
+      isAdmin
     }}>
       {children}
     </AuthContext.Provider>
