@@ -9,17 +9,35 @@ import IncidentList from './components/IncidentList';
 import LoginPage from './components/LoginPage';
 import NeighborhoodChat from './components/NeighborhoodChat';
 import CommunicationMedia from './components/CommunicationMedia';
+import AdminLogin from './components/admin/AdminLogin';
+import AdminDashboard from './components/admin/AdminDashboard';
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
   
-  if (!isAuthenticated) {
+  if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
   
   return children;
 };
+
+// Protected Admin Route component
+const ProtectedAdminRoute = ({ children }) => {
+  const { user, isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated() || !user?.isAdmin) {
+    return <Navigate to="/admin/login" replace />;
+  }
+  
+  return children;
+};
+
+// Placeholder components for admin routes
+const AdminReportManagement = () => <div>Gestión de Reportes</div>;
+const AdminNoticeManagement = () => <div>Gestión de Noticias</div>;
+const AdminUserManagement = () => <div>Gestión de Usuarios</div>;
 
 const CitizenReporter = () => {
   const navigate = useNavigate();
@@ -353,56 +371,72 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          {/* Rutas existentes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<CitizenReporter />} />
-          <Route 
-            path="/dashboard" 
+          <Route
+            path="/dashboard"
             element={
               <ProtectedRoute>
                 <MainDashboard />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/report" 
+          <Route
+            path="/report"
             element={
               <ProtectedRoute>
                 <IncidentReport />
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/community-chat" 
+          <Route
+            path="/community-chat"
             element={
               <ProtectedRoute>
                 <NeighborhoodChat />
               </ProtectedRoute>
-            } 
+            }
           />
           <Route path="/location" element={<Incidentmaps />} />
           <Route path="/incidents" element={<IncidentList />} />
-          <Route 
-            path="/profile" 
+          <Route
+            path="/profile"
             element={
               <ProtectedRoute>
                 <div>Profile Page</div>
               </ProtectedRoute>
-            } 
+            }
           />
-          <Route 
-            path="/notifications" 
+          <Route
+            path="/notifications"
             element={
               <ProtectedRoute>
                 <div>Notifications Page</div>
               </ProtectedRoute>
-            } 
+            }
           />
           <Route path="/report/:id" element={<div>Report Detail Page</div>} />
           <Route path="/media" element={<CommunicationMedia />} />
+
+          {/* Nuevas rutas de administrador */}
+          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedAdminRoute>
+                <Routes>
+                  <Route path="dashboard" element={<AdminDashboard />} />
+                  <Route path="reports" element={<AdminReportManagement />} />
+                  <Route path="notices" element={<AdminNoticeManagement />} />
+                  <Route path="users" element={<AdminUserManagement />} />
+                </Routes>
+              </ProtectedAdminRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </Router>
   );
 }
-
 export default App;

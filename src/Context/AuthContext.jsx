@@ -1,4 +1,3 @@
-// AuthContext.js
 import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
@@ -32,17 +31,52 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         return { success: true };
       } else {
-        // Manejar errores de autenticación
         console.error('Error de login:', data.message);
-        return { 
-          success: false, 
+        return {
+          success: false,
           message: data.message || 'Error en la autenticación'
         };
       }
     } catch (error) {
       console.error('Error en la petición:', error);
-      return { 
-        success: false, 
+      return {
+        success: false,
+        message: 'Error de conexión. Por favor, intente más tarde.'
+      };
+    }
+  };
+
+  const adminLogin = async (credentials) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/auth/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: credentials.email,
+          password: credentials.password
+        }),
+        credentials: 'include'
+      });
+
+      const data = await response.json();
+      
+      if (response.ok && data.user.isAdmin) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify({...data.user, isAdmin: true}));
+        setUser({...data.user, isAdmin: true});
+        return { success: true };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Acceso no autorizado'
+        };
+      }
+    } catch (error) {
+      console.error('Error en el login de admin:', error);
+      return {
+        success: false,
         message: 'Error de conexión. Por favor, intente más tarde.'
       };
     }
@@ -65,21 +99,20 @@ export const AuthProvider = ({ children }) => {
       const data = await response.json();
 
       if (response.ok) {
-        // Guardar el token y la información del usuario
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
         setUser(data.user);
         return { success: true };
       } else {
-        return { 
-          success: false, 
+        return {
+          success: false,
           message: data.message || 'Error en el registro'
         };
       }
     } catch (error) {
       console.error('Error en el registro:', error);
-      return { 
-        success: false, 
+      return {
+        success: false,
         message: 'Error de conexión. Por favor, intente más tarde.'
       };
     }
@@ -96,7 +129,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      login, 
+      adminLogin, 
+      register, 
+      logout, 
+      isAuthenticated 
+    }}>
       {children}
     </AuthContext.Provider>
   );
