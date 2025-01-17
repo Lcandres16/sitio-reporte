@@ -25,18 +25,6 @@ npx tailwindcss init -p
 npm install lucide-react
 (Lucide es una colección de iconos SVG, diseñada para ser fácilmente utilizada en proyectos de React. )
 
-
-
-
-
-
-
-
-
-
-
-
-
 Librerias del Backend;
 npm install bcrypt
 npm install bcryptjs
