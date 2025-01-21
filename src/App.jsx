@@ -1,36 +1,55 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Search, MapPin, FileText, Image, MessageCircle, Grid3X3, Menu, Bell, LogOut, Upload, X } from 'lucide-react';
-import { useAuth, AuthProvider } from './Context/AuthContext';
-import MainDashboard from './components/MainDashboard';
-import IncidentReport from './components/IncidentReport';
-import Incidentmaps from './components/Incidentmaps';
-import IncidentList from './components/IncidentList';
-import LoginPage from './components/LoginPage';
-import NeighborhoodChat from './components/NeighborhoodChat';
-import CommunicationMedia from './components/CommunicationMedia';
-import AdminLogin from './components/admin/AdminLogin';
-import AdminDashboard from './components/admin/AdminDashboard';
+import { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+  useNavigate,
+} from "react-router-dom";
+import {
+  Search,
+  MapPin,
+  FileText,
+  Image,
+  MessageCircle,
+  Grid3X3,
+  Menu,
+  Bell,
+  LogOut,
+} from "lucide-react";
+import { useAuth, AuthProvider } from "./Context/AuthContext";
+import MainDashboard from "./components/MainDashboard";
+import IncidentReport from "./components/IncidentReport";
+import Incidentmaps from "./components/Incidentmaps";
+import IncidentList from "./components/IncidentList";
+import LoginPage from "./components/LoginPage";
+import NeighborhoodChat from "./components/NeighborhoodChat";
+import CommunicationMedia from "./components/CommunicationMedia";
+import AdminLogin from "./components/admin/AdminLogin";
+import AdminDashboard from "./components/admin/AdminDashboard";
+import ReportDetailPage from "./components/admin/reports/ReportDetailPage";
+import NotificationPage from "./components/notifications/NotificationPage";
+import NotificationButton from "./components/notifications/components/NotificationButton";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
-  
+
   return children;
 };
 
 // Protected Admin Route component
 const ProtectedAdminRoute = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
-  
+
   if (!isAuthenticated() || !user?.isAdmin) {
     return <Navigate to="/admin/login" replace />;
   }
-  
+
   return children;
 };
 
@@ -50,22 +69,22 @@ const CitizenReporter = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/reportes', {
+        const response = await fetch("http://localhost:3000/api/reportes", {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
-        
+
         if (!response.ok) {
-          throw new Error('Error al cargar los reportes');
+          throw new Error("Error al cargar los reportes");
         }
-        
+
         const data = await response.json();
         setReports(data);
         setLoading(false);
       } catch (error) {
-        console.error('Error fetching reports:', error);
-        setError('No se pudieron cargar los reportes');
+        console.error("Error fetching reports:", error);
+        setError("No se pudieron cargar los reportes");
         setLoading(false);
       }
     };
@@ -79,61 +98,55 @@ const CitizenReporter = () => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInSeconds = Math.floor((now - date) / 1000);
-    
-    if (diffInSeconds < 60) return 'Hace un momento';
-    if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} minutos`;
-    if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
+
+    if (diffInSeconds < 60) return "Hace un momento";
+    if (diffInSeconds < 3600)
+      return `Hace ${Math.floor(diffInSeconds / 60)} minutos`;
+    if (diffInSeconds < 86400)
+      return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
     return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
   };
 
   // Navigation functions
   const handleCreateReport = () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    navigate('/report');
+    navigate("/report");
   };
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
     setShowProfileMenu(false);
   };
 
-  const handleDashboardClick = () => navigate('/dashboard');
-  const handleExploreClick = () => navigate('/explore');
-  const handleLocationClick = () => navigate('/location');
-  const handleIncidentClick = () => navigate('/incidents');
-  const handleMediaClick = () => navigate('/media');
+  // const handleDashboardClick = () => navigate("/dashboard");
+  const handleExploreClick = () => navigate("/explore");
+  const handleLocationClick = () => navigate("/location");
+  const handleIncidentClick = () => navigate("/incidents");
+  const handleMediaClick = () => navigate("/media");
   const handleCommunityClick = () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    navigate('/community-chat');
+    navigate("/community-chat");
   };
-  const handleCategoryClick = () => navigate('/dashboard');
-  const handleDescriptionClick = () => navigate('/description');
+  const handleCategoryClick = () => navigate("/dashboard");
+  const handleDescriptionClick = () => navigate("/description");
 
   const handleProfileClick = () => {
     if (!isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    navigate('/profile');
+    navigate("/profile");
     setShowProfileMenu(false);
   };
 
-  const handleNotificationsClick = () => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    navigate('/notifications');
-  };
-
-  const handleLoginClick = () => navigate('/login');
+  const handleLoginClick = () => navigate("/login");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -141,21 +154,21 @@ const CitizenReporter = () => {
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span 
-              className="font-bold text-xl cursor-pointer" 
-              onClick={() => navigate('/')}
+            <span
+              className="font-bold text-xl cursor-pointer"
+              onClick={() => navigate("/")}
             >
               Citizen Reporter
             </span>
           </div>
           <div className="flex items-center gap-4">
-            <button 
+            <button
               className="px-4 py-2 hover:bg-gray-100 rounded-lg"
               onClick={handleCreateReport}
             >
               Report
             </button>
-            <button 
+            <button
               className="px-4 py-2 hover:bg-gray-100 rounded-lg"
               onClick={handleExploreClick}
             >
@@ -163,18 +176,15 @@ const CitizenReporter = () => {
             </button>
             {isAuthenticated ? (
               <>
-                <Bell 
-                  className="w-5 h-5 text-gray-600 cursor-pointer" 
-                  onClick={handleNotificationsClick}
-                />
+                <NotificationButton />
                 <div className="relative">
-                  <img 
-                    src="/api/placeholder/32/32" 
-                    alt="Profile" 
-                    className="w-8 h-8 rounded-full cursor-pointer" 
+                  <img
+                    src="/api/placeholder/32/32"
+                    alt="Profile"
+                    className="w-8 h-8 rounded-full cursor-pointer"
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                   />
-                  
+
                   {/* Profile Dropdown Menu */}
                   {showProfileMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
@@ -216,7 +226,7 @@ const CitizenReporter = () => {
           <p className="text-lg text-gray-600 mb-8">
             A platform for you to report issues and incidents in your community
           </p>
-          
+
           {/* Search Bar */}
           <div className="flex gap-2 max-w-2xl">
             <div className="flex-1 relative">
@@ -227,7 +237,7 @@ const CitizenReporter = () => {
                 className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <button 
+            <button
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
               onClick={handleCreateReport}
             >
@@ -240,42 +250,42 @@ const CitizenReporter = () => {
       {/* Category Buttons */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-wrap gap-4">
-          <button 
+          <button
             onClick={handleLocationClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <MapPin className="w-5 h-5" />
             Location
           </button>
-          <button 
+          <button
             onClick={handleIncidentClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <FileText className="w-5 h-5" />
             Incident
           </button>
-          <button 
+          <button
             onClick={handleMediaClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Image className="w-5 h-5" />
             Media
           </button>
-          <button 
+          <button
             onClick={handleCommunityClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
             Community Chat
           </button>
-          <button 
+          <button
             onClick={handleCategoryClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <Grid3X3 className="w-5 h-5" />
             Category
           </button>
-          <button 
+          <button
             onClick={handleDescriptionClick}
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
@@ -299,13 +309,15 @@ const CitizenReporter = () => {
           </div>
         ) : reports.length === 0 ? (
           <div className="text-center py-8 bg-white rounded-lg border">
-            <p className="text-gray-500">No reports yet. Be the first to create one!</p>
+            <p className="text-gray-500">
+              No reports yet. Be the first to create one!
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {reports.map((report) => (
-              <div 
-                key={report.id} 
+              <div
+                key={report.id}
                 className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
                 onClick={() => navigate(`/report/${report.id}`)}
               >
@@ -340,16 +352,20 @@ const CitizenReporter = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2">
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    report.estado === "completado" 
-                      ? "bg-green-100 text-green-800"
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      report.estado === "completado"
+                        ? "bg-green-100 text-green-800"
+                        : report.estado === "en_proceso"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800"
+                    }`}
+                  >
+                    {report.estado === "resuelto"
+                      ? "Completado"
                       : report.estado === "en_proceso"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-gray-100 text-gray-800"
-                  }`}>
-                    {report.estado === "completado" ? "Completado" :
-                     report.estado === "en_proceso" ? "En Proceso" :
-                     "No Evaluado"}
+                      ? "En Proceso"
+                      : "No Evaluado"}
                   </span>
                   {report.categoria && (
                     <span className="text-sm text-gray-500">
@@ -412,11 +428,11 @@ function App() {
             path="/notifications"
             element={
               <ProtectedRoute>
-                <div>Notifications Page</div>
+                <NotificationPage />
               </ProtectedRoute>
             }
           />
-          <Route path="/report/:id" element={<div>Report Detail Page</div>} />
+          <Route path="/report/:id" element={<ReportDetailPage />} />
           <Route path="/media" element={<CommunicationMedia />} />
 
           {/* Nuevas rutas de administrador */}
