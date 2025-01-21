@@ -1,4 +1,15 @@
+networks:
+  report-network:
 services:
+  backend:
+    depends_on:
+      - flyway
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    env_file: ./.env
+    networks:
+      - report-network
   database:
     image: mysql:9.0.1
     ports:
@@ -6,3 +17,22 @@ services:
     environment:
       - MYSQL_DATABASE=citizen_reporter
       - MYSQL_ROOT_PASSWORD=admin
+    networks:
+      - report-network
+  flyway:
+    image: flyway/flyway
+    volumes:
+      - ./src/db/sql:/flyway/sql
+      - ./src/db/conf:/flyway/conf
+    command: migrate
+    depends_on:
+      - database
+    healthcheck:
+      test: ["CMD", "flyway", "info"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file: ./.env
+    restart: on-failure
+    networks:
+      - report-network
