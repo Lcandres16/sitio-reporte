@@ -26,18 +26,13 @@ app.use(express.urlencoded({ extended: true }));
 
 // Crear la carpeta uploads y  dir si no existen
 const uploadsDir = path.join(__dirname, "../public/uploads");
-const distDir = path.join(__dirname, "../../dist");
-
-if (!require("fs").existsSync(distDir)) {
-  require("fs").mkdirSync(distDir, { recursive: true });
-}
 
 if (!require("fs").existsSync(uploadsDir)) {
   require("fs").mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Servir archivos estáticos
-app.use("/", express.static(path.join(__dirname, "../../", "dist")));
+app.use("/", express.static(path.resolve(__dirname, "../", "dist")));
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // Rutas

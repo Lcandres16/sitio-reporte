@@ -10,6 +10,8 @@ services:
     env_file: ./.env
     networks:
       - report-network
+    volumes:
+      - ./src/dist:/home/app/dist
   database:
     image: mysql:9.0.1
     environment:
