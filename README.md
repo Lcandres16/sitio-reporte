@@ -24,3 +24,14 @@ npx tailwindcss init -p
  # 4. Inicializa Tailwind CSS
 npm install lucide-react
 (Lucide es una colección de iconos SVG, diseñada para ser fácilmente utilizada en proyectos de React. )
+
+Librerias del Backend;
+npm install bcrypt
+npm install bcryptjs
+npm install cors
+npm install dotenv
+npm install express
+npm install jsonwebtoken
+npm install multer
+npm install mysql2
+

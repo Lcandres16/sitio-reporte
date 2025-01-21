@@ -1,7 +1,11 @@
-import { useState } from 'react';
-import { Bell, CheckCircle, FileText, MessageSquare, Users } from 'lucide-react';
+import { useState } from "react";
+import { Bell, FileText, Users } from "lucide-react";
+import ReportPage from "./reports/ReportPage";
+import NoticePage from "./notice/NoticePage";
+import UsersPage from "./users/UsersPage";
 
 export default function AdminDashboard() {
+<<<<<<< HEAD
   const [activeTab, setActiveTab] = useState('reports');
   
   const handleCreateNotice = async (noticeData) => {
@@ -25,6 +29,9 @@ export default function AdminDashboard() {
       alert('Error al crear el aviso');
     }
   };
+=======
+  const [activeTab, setActiveTab] = useState("reports");
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -33,32 +40,38 @@ export default function AdminDashboard() {
         <div className="p-4 border-b">
           <h2 className="text-xl font-bold text-gray-800">Panel Admin</h2>
         </div>
-        
+
         <nav className="mt-4">
           <button
-            onClick={() => setActiveTab('reports')}
+            onClick={() => setActiveTab("reports")}
             className={`flex items-center w-full p-4 ${
-              activeTab === 'reports' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'
+              activeTab === "reports"
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600"
             }`}
           >
             <FileText className="w-5 h-5 mr-3" />
             Reportes Pendientes
           </button>
-          
+
           <button
-            onClick={() => setActiveTab('notices')}
+            onClick={() => setActiveTab("notices")}
             className={`flex items-center w-full p-4 ${
-              activeTab === 'notices' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'
+              activeTab === "notices"
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600"
             }`}
           >
             <Bell className="w-5 h-5 mr-3" />
             Crear Avisos
           </button>
-          
+
           <button
-            onClick={() => setActiveTab('users')}
+            onClick={() => setActiveTab("users")}
             className={`flex items-center w-full p-4 ${
-              activeTab === 'users' ? 'bg-blue-50 text-blue-600' : 'text-gray-600'
+              activeTab === "users"
+                ? "bg-blue-50 text-blue-600"
+                : "text-gray-600"
             }`}
           >
             <Users className="w-5 h-5 mr-3" />
@@ -72,14 +85,15 @@ export default function AdminDashboard() {
         <header className="bg-white shadow">
           <div className="px-6 py-4">
             <h1 className="text-2xl font-bold text-gray-800">
-              {activeTab === 'reports' && 'Gestión de Reportes'}
-              {activeTab === 'notices' && 'Crear Nuevo Aviso'}
-              {activeTab === 'users' && 'Gestión de Usuarios'}
+              {activeTab === "reports" && "Gestión de Reportes"}
+              {activeTab === "notices" && "Crear Nuevo Aviso"}
+              {activeTab === "users" && "Gestión de Usuarios"}
             </h1>
           </div>
         </header>
 
         <main className="p-6">
+<<<<<<< HEAD
           {/* Sección de Reportes */}
           {activeTab === 'reports' && (
             <div className="bg-white rounded-lg shadow p-6">
@@ -186,6 +200,13 @@ export default function AdminDashboard() {
               </table>
             </div>
           )}
+=======
+          {activeTab === "reports" && <ReportPage />}
+
+          {activeTab === "notices" && <NoticePage />}
+
+          {activeTab === "users" && <UsersPage />}
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
         </main>
       </div>
     </div>

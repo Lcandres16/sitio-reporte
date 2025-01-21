@@ -1,16 +1,30 @@
+<<<<<<< HEAD
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, VideoIcon, X, ArrowLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+=======
+import { useState, useRef, useEffect } from "react";
+import { Send, Paperclip, VideoIcon, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import noticeService from "../services/notice-service";
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
 const NeighborhoodChat = () => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const { data: messages } = useQuery({
+    queryFn: () => noticeService.findAll(),
+    queryKey: ["notices"],
+    refetchOnWindowFocus: true,
+  });
+
+  const [inputMessage, setInputMessage] = useState("");
   const [attachedFile, setAttachedFile] = useState(null);
   const [activeNotices, setActiveNotices] = useState([]);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
+<<<<<<< HEAD
   // Función para cargar avisos activos
   const loadActiveNotices = async () => {
     try {
@@ -23,6 +37,13 @@ const NeighborhoodChat = () => {
       console.error('Error al cargar avisos:', error);
     }
   };
+=======
+  // Simulated user data (in a real app, this would come from authentication)
+  // const users = {
+  //   current_user: { id: "current_user", name: "John Doe" },
+  //   other_user: { id: "other_user", name: "Jane Smith" },
+  // };
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
   useEffect(() => {
     loadActiveNotices();
@@ -43,22 +64,32 @@ const NeighborhoodChat = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+<<<<<<< HEAD
       if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
+=======
+      // Check file type (video or image)
+      if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
         const reader = new FileReader();
         reader.onloadend = () => {
           setAttachedFile({
             preview: reader.result,
-            type: file.type.startsWith('video/') ? 'video' : 'image',
-            name: file.name
+            type: file.type.startsWith("video/") ? "video" : "image",
+            name: file.name,
           });
         };
         reader.readAsDataURL(file);
       } else {
+<<<<<<< HEAD
         alert('Por favor, sube solo imágenes o videos');
+=======
+        alert("Please upload only images or videos");
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
       }
     }
   };
 
+<<<<<<< HEAD
   const removeAttachment = () => {
     setAttachedFile(null);
     if (fileInputRef.current) {
@@ -84,13 +115,39 @@ const NeighborhoodChat = () => {
       setInputMessage('');
       setAttachedFile(null);
       
+=======
+  const handleSendMessage = (e) => {
+    e.preventDefault();
+
+    // Trim and validate message
+    const trimmedMessage = inputMessage.trim();
+    if (trimmedMessage || attachedFile) {
+      // const newMessage = {
+      //   id: Date.now(),
+      //   text: trimmedMessage,
+      //   sender: "current_user", // In a real app, this would be the logged-in user
+      //   senderName: users["current_user"].name,
+      //   timestamp: new Date().toLocaleTimeString(),
+      //   attachment: attachedFile,
+      // };
+
+      // Add message to messages array
+      // setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+      // Reset input and attachment
+      setInputMessage("");
+      setAttachedFile(null);
+
+      // Reset file input
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
       if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        fileInputRef.current.value = "";
       }
     }
   };
 
   const handleReset = () => {
+<<<<<<< HEAD
     setMessages([]);
     setAttachedFile(null);
     setInputMessage('');
@@ -98,6 +155,19 @@ const NeighborhoodChat = () => {
 
   const handleGoBack = () => {
     navigate('/');
+=======
+    // Clear all messages
+
+    // Clear any attached file
+    setAttachedFile(null);
+    // Clear input message
+    setInputMessage("");
+  };
+
+  const handleGoHome = () => {
+    // Navigate back to the main page
+    navigate("/");
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
   };
 
   return (
@@ -106,8 +176,13 @@ const NeighborhoodChat = () => {
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
+<<<<<<< HEAD
             <button 
               onClick={handleGoBack}
+=======
+            <button
+              onClick={handleGoHome}
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
               className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
               title="Volver"
             >
@@ -117,7 +192,7 @@ const NeighborhoodChat = () => {
               Chat del Vecindario
             </h1>
           </div>
-          <button 
+          <button
             onClick={handleReset}
             className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200"
             title="Reiniciar Chat"
@@ -156,16 +231,19 @@ const NeighborhoodChat = () => {
 
         {/* Messages Container */}
         <div className="flex-grow overflow-y-auto bg-white border rounded-lg mb-4 p-4 space-y-4">
-          {messages.length === 0 ? (
+          {messages?.length === 0 ? (
             <div className="text-center text-gray-500">
               No hay mensajes aún. ¡Inicia la conversación!
             </div>
           ) : (
-            messages.map((msg) => (
-              <div 
-                key={msg.id} 
-                className={`flex flex-col ${msg.sender === 'current_user' ? 'items-end' : 'items-start'}`}
+            messages?.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex flex-col ${
+                  msg.sender === "current_user" ? "items-end" : "items-start"
+                }`}
               >
+<<<<<<< HEAD
                 <div className="text-xs text-gray-500 mb-1">
                   {msg.senderName}
                 </div>
@@ -196,28 +274,40 @@ const NeighborhoodChat = () => {
                     </div>
                   )}
                   
+=======
+                <div className="text-xs text-gray-500 mb-1">{msg.admin_id}</div>
+                <h2>{msg.titulo}</h2>
+                <div className={`max-w-[70%] p-3 rounded-lg`}>
+                  {msg.contenido && <p className="mb-2">{msg.contenido}</p>}
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
                   <div className="text-xs mt-1 opacity-70 text-right">
-                    {msg.timestamp}
+                    {msg.created_at}
                   </div>
                 </div>
               </div>
             ))
           )}
-          <div ref={messagesEndRef} />
         </div>
 
         {/* Attachment Preview */}
-        {attachedFile && (
+        {/* {attachedFile && (
           <div className="relative mb-4">
+<<<<<<< HEAD
             {attachedFile.type === 'image' ? (
               <img 
                 src={attachedFile.preview} 
                 alt="Vista previa" 
+=======
+            {attachedFile.type === "image" ? (
+              <img
+                src={attachedFile.preview}
+                alt="Attachment Preview"
+>>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
                 className="max-h-40 w-auto rounded-lg"
               />
             ) : (
-              <video 
-                src={attachedFile.preview} 
+              <video
+                src={attachedFile.preview}
                 className="max-h-40 w-auto rounded-lg"
                 controls
               />
@@ -229,36 +319,36 @@ const NeighborhoodChat = () => {
               <X className="w-5 h-5 text-red-500" />
             </button>
           </div>
-        )}
+        )} */}
 
         {/* Message Input Form */}
         <form onSubmit={handleSendMessage} className="flex gap-2">
           {/* File Upload Input */}
-          <input 
-            type="file" 
+          <input
+            type="file"
             ref={fileInputRef}
-            accept="image/*,video/*" 
-            onChange={handleFileUpload} 
-            className="hidden" 
-            id="file-upload" 
+            accept="image/*,video/*"
+            onChange={handleFileUpload}
+            className="hidden"
+            id="file-upload"
           />
-          <label 
-            htmlFor="file-upload" 
+          <label
+            htmlFor="file-upload"
             className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 cursor-pointer"
           >
             <Paperclip className="w-6 h-6 text-gray-600" />
           </label>
 
           {/* Video Upload Button */}
-          <label 
-            htmlFor="file-upload" 
+          <label
+            htmlFor="file-upload"
             className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 cursor-pointer"
           >
             <VideoIcon className="w-6 h-6 text-gray-600" />
           </label>
 
           {/* Text Input */}
-          <input 
+          <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
@@ -267,8 +357,8 @@ const NeighborhoodChat = () => {
           />
 
           {/* Send Button */}
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
           >
             <Send className="w-6 h-6" />
