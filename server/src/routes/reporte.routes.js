@@ -18,11 +18,16 @@ const upload = multer({ storage: storage });
 
 // Controlador de reportes
 const reporteController = require("../controllers/reporte.controller");
-const { body } = require("express-validator");
+const { body, query } = require("express-validator");
+const CATEGORIES = require("../const/categories");
 
 // Rutas
 router.post("/", upload.single("imagen"), reporteController.crearReporte);
-router.get("/", reporteController.obtenerReportes); // Nueva ruta añadida
+router.get(
+  "/",
+  [query("categoryName").isIn(Object.values(CATEGORIES)).optional()],
+  reporteController.obtenerReportes
+); // Nueva ruta añadida
 router.get("/:reportId", reporteController.obtenerUnReporte);
 router.patch(
   "/",

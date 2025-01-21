@@ -57,7 +57,7 @@ const reporteController = {
 
   obtenerReportes: async (req, res) => {
     try {
-      const { categoryName } = req.query;
+      const { categoryName = null } = req.query;
 
       const query = `
         SELECT r.*, i.url as imagen_url, c.nombre as categoria_nombre,

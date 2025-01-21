@@ -4,15 +4,16 @@ import { useNavigate } from "react-router-dom";
 import IncidentCard from "./incidents/IncidentCard";
 import { useQuery } from "@tanstack/react-query";
 import reportService from "../services/report-service";
+import CATEGORIES from "../consts/categories";
 
 const IncidentList = () => {
-  const [selectedType, setSelectedType] = useState("");
+  const [selectedType, setSelectedType] = useState(undefined);
   const navigate = useNavigate();
 
-  const incidentTypes = ["Público alumbrado", "Otros"];
+  const incidentTypes = [...Object.values(CATEGORIES)];
 
   const { data: incidents } = useQuery({
-    queryFn: () => reportService.findAll(),
+    queryFn: () => reportService.findAll({ categoryName: selectedType }),
     queryKey: ["reports-incidents", selectedType],
   });
 

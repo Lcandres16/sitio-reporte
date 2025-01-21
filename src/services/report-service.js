@@ -1,8 +1,14 @@
 import ENV from "../environment/env";
 
 class ReportService {
-  findAll() {
-    return fetch(`${ENV.API_URL}/reportes`).then((res) => res.json());
+  findAll({ categoryName = undefined } = {}) {
+    let api = `${ENV.API_URL}/reportes`;
+
+    if (categoryName) {
+      api += `?categoryName=${categoryName?.replace(" ", "+")}`;
+    }
+
+    return fetch(api).then((res) => res.json());
   }
 
   findOne({ reportId }) {
