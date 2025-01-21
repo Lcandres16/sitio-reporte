@@ -30,6 +30,7 @@ import AdminDashboard from "./components/admin/AdminDashboard";
 import ReportDetailPage from "./components/admin/reports/ReportDetailPage";
 import NotificationPage from "./components/notifications/NotificationPage";
 import NotificationButton from "./components/notifications/components/NotificationButton";
+import ENV from "./environment/env";
 
 // Protected Route component
 const ProtectedRoute = ({ children }) => {
@@ -69,7 +70,7 @@ const CitizenReporter = () => {
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const response = await fetch("http://localhost:3000/api/reportes", {
+        const response = await fetch(`${ENV.API_URL}/reportes`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
