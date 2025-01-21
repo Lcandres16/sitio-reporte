@@ -3,6 +3,9 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Importar la configuración de la base de datos
+const db = require('./models');
+
 // Importación de rutas
 const usuarioRoutes = require('./routes/usuario.routes');
 const categoriaRoutes = require('./routes/categoria.routes');
@@ -32,7 +35,6 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 // Rutas
 app.use('/api/auth', usuarioRoutes);
 app.use('/api/admin', adminRoutes);
-
 app.use('/api', categoriaRoutes);
 app.use('/api/reportes', reporteRoutes);
 
@@ -46,8 +48,17 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en el puerto ${PORT}`);
-});
+
+// Sincronizar la base de datos y luego iniciar el servidor
+db.sequelize.sync()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log('Base de datos sincronizada');
+      console.log(`Servidor corriendo en el puerto ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('Error al sincronizar la base de datos:', err);
+  });
 
 module.exports = app;

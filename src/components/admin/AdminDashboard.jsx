@@ -4,6 +4,28 @@ import { Bell, CheckCircle, FileText, MessageSquare, Users } from 'lucide-react'
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('reports');
   
+  const handleCreateNotice = async (noticeData) => {
+    try {
+      const response = await fetch('/api/notices', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...noticeData,
+          createdAt: new Date().toISOString(),
+          expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+        })
+      });
+
+      if (!response.ok) throw new Error('Error al crear el aviso');
+      alert('Aviso creado exitosamente. Estará visible por 24 horas.');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error al crear el aviso');
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -58,6 +80,7 @@ export default function AdminDashboard() {
         </header>
 
         <main className="p-6">
+          {/* Sección de Reportes */}
           {activeTab === 'reports' && (
             <div className="bg-white rounded-lg shadow p-6">
               <div className="grid gap-4">
@@ -81,34 +104,60 @@ export default function AdminDashboard() {
             </div>
           )}
 
+          {/* Sección de Avisos */}
           {activeTab === 'notices' && (
             <div className="bg-white rounded-lg shadow p-6">
-              <form className="space-y-4">
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-600">
+                  Los avisos estarán visibles para todos los usuarios durante 24 horas.
+                </p>
+              </div>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const title = e.target.title.value;
+                const content = e.target.content.value;
+                const isImportant = e.target.isImportant.checked;
+                handleCreateNotice({ title, content, isImportant });
+                e.target.reset();
+              }} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Título</label>
                   <input
+                    name="title"
                     type="text"
+                    required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Contenido</label>
                   <textarea
+                    name="content"
                     rows={4}
+                    required
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                   />
                 </div>
                 <div className="flex items-center">
-                  <input type="checkbox" className="rounded border-gray-300 text-blue-600" />
+                  <input 
+                    type="checkbox"
+                    name="isImportant"
+                    className="rounded border-gray-300 text-blue-600"
+                  />
                   <label className="ml-2 text-sm text-gray-700">Marcar como importante</label>
                 </div>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                <button 
+                  type="submit"
+                  className="w-full px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center justify-center gap-2"
+                >
+                  <Bell className="w-5 h-5" />
                   Publicar Aviso
                 </button>
               </form>
             </div>
           )}
 
+          {/* Sección de Usuarios */}
           {activeTab === 'users' && (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <table className="min-w-full divide-y divide-gray-200">

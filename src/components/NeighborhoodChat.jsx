@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, VideoIcon, X, ArrowLeft } from 'lucide-react';
+import { Send, Paperclip, VideoIcon, X, ArrowLeft, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const NeighborhoodChat = () => {
@@ -7,14 +7,29 @@ const NeighborhoodChat = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [attachedFile, setAttachedFile] = useState(null);
+  const [activeNotices, setActiveNotices] = useState([]);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
-  // Simulated user data (in a real app, this would come from authentication)
-  const users = {
-    current_user: { id: 'current_user', name: 'John Doe' },
-    other_user: { id: 'other_user', name: 'Jane Smith' }
+  // Función para cargar avisos activos
+  const loadActiveNotices = async () => {
+    try {
+      const response = await fetch('/api/notices/active');
+      if (response.ok) {
+        const notices = await response.json();
+        setActiveNotices(notices);
+      }
+    } catch (error) {
+      console.error('Error al cargar avisos:', error);
+    }
   };
+
+  useEffect(() => {
+    loadActiveNotices();
+    // Recargar avisos cada 5 minutos
+    const interval = setInterval(loadActiveNotices, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Scroll to bottom when messages change
   const scrollToBottom = () => {
@@ -28,7 +43,6 @@ const NeighborhoodChat = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file type (video or image)
       if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -40,14 +54,13 @@ const NeighborhoodChat = () => {
         };
         reader.readAsDataURL(file);
       } else {
-        alert('Please upload only images or videos');
+        alert('Por favor, sube solo imágenes o videos');
       }
     }
   };
 
   const removeAttachment = () => {
     setAttachedFile(null);
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -56,26 +69,21 @@ const NeighborhoodChat = () => {
   const handleSendMessage = (e) => {
     e.preventDefault();
     
-    // Trim and validate message
     const trimmedMessage = inputMessage.trim();
     if (trimmedMessage || attachedFile) {
       const newMessage = {
         id: Date.now(),
         text: trimmedMessage,
-        sender: 'current_user', // In a real app, this would be the logged-in user
-        senderName: users['current_user'].name,
+        sender: 'current_user',
+        senderName: 'Tú',
         timestamp: new Date().toLocaleTimeString(),
         attachment: attachedFile
       };
 
-      // Add message to messages array
       setMessages(prevMessages => [...prevMessages, newMessage]);
-      
-      // Reset input and attachment
       setInputMessage('');
       setAttachedFile(null);
       
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -83,16 +91,12 @@ const NeighborhoodChat = () => {
   };
 
   const handleReset = () => {
-    // Clear all messages
     setMessages([]);
-    // Clear any attached file
     setAttachedFile(null);
-    // Clear input message
     setInputMessage('');
   };
 
-  const handleGoHome = () => {
-    // Navigate back to the main page
+  const handleGoBack = () => {
     navigate('/');
   };
 
@@ -103,34 +107,58 @@ const NeighborhoodChat = () => {
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button 
-              onClick={handleGoHome}
+              onClick={handleGoBack}
               className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
-              title="Back to Home"
+              title="Volver"
             >
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
             <h1 className="font-bold text-xl text-gray-800">
-              Neighborhood Chat
+              Chat del Vecindario
             </h1>
           </div>
           <button 
             onClick={handleReset}
             className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200"
-            title="Reset Chat"
+            title="Reiniciar Chat"
           >
-            Reset
+            Reiniciar
           </button>
         </div>
       </header>
 
-      {/* Rest of the component remains the same as in the previous version */}
       {/* Chat Container */}
       <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col h-[calc(100vh-120px)]">
+        {/* Avisos Activos */}
+        {activeNotices.length > 0 && (
+          <div className="mb-4 space-y-2">
+            {activeNotices.map((notice) => (
+              <div
+                key={notice.id}
+                className={`p-4 rounded-lg ${
+                  notice.isImportant
+                    ? 'bg-yellow-50 border-2 border-yellow-400'
+                    : 'bg-blue-50 border-2 border-blue-400'
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Bell className={`w-5 h-5 ${notice.isImportant ? 'text-yellow-600' : 'text-blue-600'}`} />
+                  <span className="font-bold text-gray-800">{notice.title}</span>
+                </div>
+                <p className="text-gray-700">{notice.content}</p>
+                <div className="mt-2 text-xs text-gray-500">
+                  {new Date(notice.createdAt).toLocaleString()}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Messages Container */}
         <div className="flex-grow overflow-y-auto bg-white border rounded-lg mb-4 p-4 space-y-4">
           {messages.length === 0 ? (
             <div className="text-center text-gray-500">
-              No messages yet. Start the conversation!
+              No hay mensajes aún. ¡Inicia la conversación!
             </div>
           ) : (
             messages.map((msg) => (
@@ -155,7 +183,7 @@ const NeighborhoodChat = () => {
                       {msg.attachment.type === 'image' ? (
                         <img 
                           src={msg.attachment.preview} 
-                          alt="Attachment" 
+                          alt="Archivo adjunto" 
                           className="max-w-full rounded-lg"
                         />
                       ) : (
@@ -184,7 +212,7 @@ const NeighborhoodChat = () => {
             {attachedFile.type === 'image' ? (
               <img 
                 src={attachedFile.preview} 
-                alt="Attachment Preview" 
+                alt="Vista previa" 
                 className="max-h-40 w-auto rounded-lg"
               />
             ) : (
@@ -234,7 +262,7 @@ const NeighborhoodChat = () => {
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Type your message..."
+            placeholder="Escribe tu mensaje..."
             className="flex-grow px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
           />
 
