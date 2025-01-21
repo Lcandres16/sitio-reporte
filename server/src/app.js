@@ -40,12 +40,6 @@ console.log(path.join(__dirname, "../dist"));
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // Rutas
-<<<<<<< HEAD
-app.use('/api/auth', usuarioRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api', categoriaRoutes);
-app.use('/api/reportes', reporteRoutes);
-=======
 app.use("/api/auth", usuarioRoutes);
 app.use("/api/admin", adminRoutes);
 
@@ -53,7 +47,6 @@ app.use("/api", categoriaRoutes);
 app.use("/api/reportes", reporteRoutes);
 app.use("/api/avisos", avisoRouter);
 app.use("/api/notificaciones", notificationRouter);
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
 // Error handler
 app.use((err, req, res, next) => {

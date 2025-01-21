@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, VideoIcon, X, ArrowLeft, Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-=======
 import { useState, useRef, useEffect } from "react";
 import { Send, Paperclip, VideoIcon, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import noticeService from "../services/notice-service";
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
 const NeighborhoodChat = () => {
   const navigate = useNavigate();
@@ -24,32 +18,17 @@ const NeighborhoodChat = () => {
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
-<<<<<<< HEAD
-  // Función para cargar avisos activos
-  const loadActiveNotices = async () => {
-    try {
-      const response = await fetch('/api/notices/active');
-      if (response.ok) {
-        const notices = await response.json();
-        setActiveNotices(notices);
-      }
-    } catch (error) {
-      console.error('Error al cargar avisos:', error);
-    }
-  };
-=======
   // Simulated user data (in a real app, this would come from authentication)
   // const users = {
   //   current_user: { id: "current_user", name: "John Doe" },
   //   other_user: { id: "other_user", name: "Jane Smith" },
   // };
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
 
   useEffect(() => {
-    loadActiveNotices();
-    // Recargar avisos cada 5 minutos
-    const interval = setInterval(loadActiveNotices, 5 * 60 * 1000);
-    return () => clearInterval(interval);
+   // loadActiveNotices();
+   // // Recargar avisos cada 5 minutos
+   // const interval = setInterval(loadActiveNotices, 5 * 60 * 1000);
+//    return () => clearInterval(interval);
   }, []);
 
   // Scroll to bottom when messages change
@@ -64,12 +43,8 @@ const NeighborhoodChat = () => {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-<<<<<<< HEAD
-      if (file.type.startsWith('video/') || file.type.startsWith('image/')) {
-=======
       // Check file type (video or image)
       if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
         const reader = new FileReader();
         reader.onloadend = () => {
           setAttachedFile({
@@ -80,42 +55,11 @@ const NeighborhoodChat = () => {
         };
         reader.readAsDataURL(file);
       } else {
-<<<<<<< HEAD
-        alert('Por favor, sube solo imágenes o videos');
-=======
         alert("Please upload only images or videos");
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
       }
     }
   };
 
-<<<<<<< HEAD
-  const removeAttachment = () => {
-    setAttachedFile(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    
-    const trimmedMessage = inputMessage.trim();
-    if (trimmedMessage || attachedFile) {
-      const newMessage = {
-        id: Date.now(),
-        text: trimmedMessage,
-        sender: 'current_user',
-        senderName: 'Tú',
-        timestamp: new Date().toLocaleTimeString(),
-        attachment: attachedFile
-      };
-
-      setMessages(prevMessages => [...prevMessages, newMessage]);
-      setInputMessage('');
-      setAttachedFile(null);
-      
-=======
   const handleSendMessage = (e) => {
     e.preventDefault();
 
@@ -139,7 +83,6 @@ const NeighborhoodChat = () => {
       setAttachedFile(null);
 
       // Reset file input
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -147,15 +90,6 @@ const NeighborhoodChat = () => {
   };
 
   const handleReset = () => {
-<<<<<<< HEAD
-    setMessages([]);
-    setAttachedFile(null);
-    setInputMessage('');
-  };
-
-  const handleGoBack = () => {
-    navigate('/');
-=======
     // Clear all messages
 
     // Clear any attached file
@@ -167,7 +101,6 @@ const NeighborhoodChat = () => {
   const handleGoHome = () => {
     // Navigate back to the main page
     navigate("/");
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
   };
 
   return (
@@ -176,13 +109,8 @@ const NeighborhoodChat = () => {
       <header className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-<<<<<<< HEAD
-            <button 
-              onClick={handleGoBack}
-=======
             <button
               onClick={handleGoHome}
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
               className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
               title="Volver"
             >
@@ -243,43 +171,10 @@ const NeighborhoodChat = () => {
                   msg.sender === "current_user" ? "items-end" : "items-start"
                 }`}
               >
-<<<<<<< HEAD
-                <div className="text-xs text-gray-500 mb-1">
-                  {msg.senderName}
-                </div>
-                <div 
-                  className={`max-w-[70%] p-3 rounded-lg ${
-                    msg.sender === 'current_user' 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-gray-200 text-black'
-                  }`}
-                >
-                  {msg.text && <p className="mb-2">{msg.text}</p>}
-                  
-                  {msg.attachment && (
-                    <div className="mt-2">
-                      {msg.attachment.type === 'image' ? (
-                        <img 
-                          src={msg.attachment.preview} 
-                          alt="Archivo adjunto" 
-                          className="max-w-full rounded-lg"
-                        />
-                      ) : (
-                        <video 
-                          src={msg.attachment.preview} 
-                          controls 
-                          className="max-w-full rounded-lg"
-                        />
-                      )}
-                    </div>
-                  )}
-                  
-=======
                 <div className="text-xs text-gray-500 mb-1">{msg.admin_id}</div>
                 <h2>{msg.titulo}</h2>
                 <div className={`max-w-[70%] p-3 rounded-lg`}>
                   {msg.contenido && <p className="mb-2">{msg.contenido}</p>}
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
                   <div className="text-xs mt-1 opacity-70 text-right">
                     {msg.created_at}
                   </div>
@@ -292,17 +187,10 @@ const NeighborhoodChat = () => {
         {/* Attachment Preview */}
         {/* {attachedFile && (
           <div className="relative mb-4">
-<<<<<<< HEAD
-            {attachedFile.type === 'image' ? (
-              <img 
-                src={attachedFile.preview} 
-                alt="Vista previa" 
-=======
             {attachedFile.type === "image" ? (
               <img
                 src={attachedFile.preview}
                 alt="Attachment Preview"
->>>>>>> 59ffb186645f394a07a161307bebb575d5c68059
                 className="max-h-40 w-auto rounded-lg"
               />
             ) : (
