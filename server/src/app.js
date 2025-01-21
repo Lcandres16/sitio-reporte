@@ -32,7 +32,8 @@ if (!require("fs").existsSync(uploadsDir)) {
 }
 
 // Servir archivos estáticos
-app.use("/", express.static(path.resolve(__dirname, "../", "dist")));
+app.use("/", express.static(path.join(__dirname, "../dist")));
+console.log(path.join(__dirname, "../dist"));
 app.use("/uploads", express.static(path.join(__dirname, "../public/uploads")));
 
 // Rutas
@@ -52,6 +53,10 @@ app.use((err, req, res, next) => {
     success: false,
     message: "Error interno del servidor",
   });
+});
+
+app.get("*", (req, res) => {
+  res.status(200).sendFile(path.join(__dirname, "../", "/dist/index.html"));
 });
 
 const PORT = process.env.PORT || 3000;

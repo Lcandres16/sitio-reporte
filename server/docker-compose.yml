@@ -11,7 +11,8 @@ services:
     networks:
       - report-network
     volumes:
-      - ./src/dist:/home/app/dist
+      - ./dist:/home/app/dist
+      - ./src:/home/app/src
   database:
     image: mysql:9.0.1
     environment:
