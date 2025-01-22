@@ -1,260 +1,109 @@
 import { useState, useRef, useEffect } from "react";
-import { Send, Paperclip, VideoIcon, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Bell } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import noticeService from "../services/notice-service";
 
-const NeighborhoodChat = () => {
+const AnnouncementsBoard = () => {
   const navigate = useNavigate();
-  const { data: messages } = useQuery({
+  const { data: announcements } = useQuery({
     queryFn: () => noticeService.findAll(),
     queryKey: ["notices"],
     refetchOnWindowFocus: true,
   });
 
-  const [inputMessage, setInputMessage] = useState("");
-  const [attachedFile, setAttachedFile] = useState(null);
-  const [activeNotices, setActiveNotices] = useState([]);
-  const messagesEndRef = useRef(null);
-  const fileInputRef = useRef(null);
-
-  // Simulated user data (in a real app, this would come from authentication)
-  // const users = {
-  //   current_user: { id: "current_user", name: "John Doe" },
-  //   other_user: { id: "other_user", name: "Jane Smith" },
-  // };
-
-  useEffect(() => {
-   // loadActiveNotices();
-   // // Recargar avisos cada 5 minutos
-   // const interval = setInterval(loadActiveNotices, 5 * 60 * 1000);
-//    return () => clearInterval(interval);
-  }, []);
-
-  // Scroll to bottom when messages change
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      // Check file type (video or image)
-      if (file.type.startsWith("video/") || file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setAttachedFile({
-            preview: reader.result,
-            type: file.type.startsWith("video/") ? "video" : "image",
-            name: file.name,
-          });
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert("Please upload only images or videos");
-      }
-    }
-  };
-
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-
-    // Trim and validate message
-    const trimmedMessage = inputMessage.trim();
-    if (trimmedMessage || attachedFile) {
-      // const newMessage = {
-      //   id: Date.now(),
-      //   text: trimmedMessage,
-      //   sender: "current_user", // In a real app, this would be the logged-in user
-      //   senderName: users["current_user"].name,
-      //   timestamp: new Date().toLocaleTimeString(),
-      //   attachment: attachedFile,
-      // };
-
-      // Add message to messages array
-      // setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-      // Reset input and attachment
-      setInputMessage("");
-      setAttachedFile(null);
-
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
-  };
-
-  const handleReset = () => {
-    // Clear all messages
-
-    // Clear any attached file
-    setAttachedFile(null);
-    // Clear input message
-    setInputMessage("");
-  };
-
-  const handleGoHome = () => {
-    // Navigate back to the main page
-    navigate("/");
+  const handleGoBack = () => {
+    navigate(-1);
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Chat Header */}
+      {/* Header exactamente igual al de CommunicationMedia */}
       <header className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleGoHome}
+            <button 
+              onClick={handleGoBack}
               className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
-              title="Volver"
+              title="Back to Home"
             >
               <ArrowLeft className="w-6 h-6 text-gray-600" />
             </button>
             <h1 className="font-bold text-xl text-gray-800">
-              Chat del Vecindario
+              Reporte de Comunicados
             </h1>
           </div>
-          <button
-            onClick={handleReset}
-            className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200"
-            title="Reiniciar Chat"
-          >
-            Reiniciar
-          </button>
         </div>
       </header>
 
-      {/* Chat Container */}
-      <div className="max-w-4xl mx-auto px-4 py-8 flex flex-col h-[calc(100vh-120px)]">
-        {/* Avisos Activos */}
-        {activeNotices.length > 0 && (
-          <div className="mb-4 space-y-2">
-            {activeNotices.map((notice) => (
-              <div
-                key={notice.id}
-                className={`p-4 rounded-lg ${
-                  notice.isImportant
-                    ? 'bg-yellow-50 border-2 border-yellow-400'
-                    : 'bg-blue-50 border-2 border-blue-400'
-                }`}
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Bell className={`w-5 h-5 ${notice.isImportant ? 'text-yellow-600' : 'text-blue-600'}`} />
-                  <span className="font-bold text-gray-800">{notice.title}</span>
-                </div>
-                <p className="text-gray-700">{notice.content}</p>
-                <div className="mt-2 text-xs text-gray-500">
-                  {new Date(notice.createdAt).toLocaleString()}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Messages Container */}
-        <div className="flex-grow overflow-y-auto bg-white border rounded-lg mb-4 p-4 space-y-4">
-          {messages?.length === 0 ? (
-            <div className="text-center text-gray-500">
-              No hay mensajes aún. ¡Inicia la conversación!
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {announcements?.length === 0 ? (
+            <div className="text-center py-12 bg-white rounded-lg shadow-sm 
+                          transform transition-all duration-300 hover:scale-[1.01]">
+              <Bell className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <p className="text-gray-500 text-lg">
+                No hay comunicados disponibles en este momento
+              </p>
             </div>
           ) : (
-            messages?.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex flex-col ${
-                  msg.sender === "current_user" ? "items-end" : "items-start"
-                }`}
+            announcements?.map((announcement, index) => (
+              <article
+                key={announcement.id}
+                className="group bg-white rounded-lg shadow-sm 
+                         transform transition-all duration-300 hover:scale-[1.01]
+                         hover:shadow-md cursor-pointer
+                         animate-fade-in-up"
+                style={{
+                  animationDelay: `${index * 100}ms`
+                }}
               >
-                <div className="text-xs text-gray-500 mb-1">{msg.admin_id}</div>
-                <h2>{msg.titulo}</h2>
-                <div className={`max-w-[70%] p-3 rounded-lg`}>
-                  {msg.contenido && <p className="mb-2">{msg.contenido}</p>}
-                  <div className="text-xs mt-1 opacity-70 text-right">
-                    {msg.created_at}
+                <div className="p-6">
+                  {/* Badge y Fecha */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-sm font-medium
+                                   transform transition-all duration-300 group-hover:bg-blue-50 group-hover:text-blue-600">
+                      Comunicado #{String(announcement.id).padStart(4, "0")}
+                    </span>
+                    <time className="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
+                      {new Date(announcement.created_at).toLocaleDateString(
+                        "es-ES",
+                        {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        }
+                      )}
+                    </time>
+                  </div>
+
+                  {/* Título y Contenido */}
+                  <div className="space-y-3">
+                    <h2 className="text-xl font-semibold text-gray-800 group-hover:text-gray-900 transition-colors">
+                      {announcement.titulo}
+                    </h2>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors">
+                      {announcement.contenido}
+                    </p>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <div className="flex items-center text-sm text-gray-500 group-hover:text-gray-600 transition-colors">
+                      <span className="flex items-center">
+                        Por: {announcement.admin_id || "Administración"}
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </article>
             ))
           )}
         </div>
-
-        {/* Attachment Preview */}
-        {/* {attachedFile && (
-          <div className="relative mb-4">
-            {attachedFile.type === "image" ? (
-              <img
-                src={attachedFile.preview}
-                alt="Attachment Preview"
-                className="max-h-40 w-auto rounded-lg"
-              />
-            ) : (
-              <video
-                src={attachedFile.preview}
-                className="max-h-40 w-auto rounded-lg"
-                controls
-              />
-            )}
-            <button
-              onClick={removeAttachment}
-              className="absolute top-2 right-2 bg-white/75 p-1 rounded-full"
-            >
-              <X className="w-5 h-5 text-red-500" />
-            </button>
-          </div>
-        )} */}
-
-        {/* Message Input Form */}
-        <form onSubmit={handleSendMessage} className="flex gap-2">
-          {/* File Upload Input */}
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="image/*,video/*"
-            onChange={handleFileUpload}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 cursor-pointer"
-          >
-            <Paperclip className="w-6 h-6 text-gray-600" />
-          </label>
-
-          {/* Video Upload Button */}
-          <label
-            htmlFor="file-upload"
-            className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 cursor-pointer"
-          >
-            <VideoIcon className="w-6 h-6 text-gray-600" />
-          </label>
-
-          {/* Text Input */}
-          <input
-            type="text"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            placeholder="Escribe tu mensaje..."
-            className="flex-grow px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-          />
-
-          {/* Send Button */}
-          <button
-            type="submit"
-            className="bg-blue-500 text-white p-2 rounded-lg hover:bg-blue-600"
-          >
-            <Send className="w-6 h-6" />
-          </button>
-        </form>
-      </div>
+      </main>
     </div>
   );
 };
 
-export default NeighborhoodChat;
+export default AnnouncementsBoard;

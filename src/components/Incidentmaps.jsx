@@ -1,90 +1,130 @@
-import React from 'react';
-import { Map, Navigation, Bell } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Copy, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-
 const IncidentTracker = () => {
+  const navigate = useNavigate();
+  const [currentLocation, setCurrentLocation] = useState(null);
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  const handleGetLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          alert("Error al obtener la ubicación. Por favor, active el GPS.");
+        }
+      );
+    } else {
+      alert("Geolocalización no está soportada en este navegador.");
+    }
+  };
+
+  const handleCopyLocation = () => {
+    if (currentLocation) {
+      const locationString = `${currentLocation.lat}, ${currentLocation.lng}`;
+      navigator.clipboard.writeText(locationString)
+        .then(() => alert("Ubicación copiada al portapapeles"))
+        .catch(err => console.error("Error al copiar:", err));
+    }
+  };
+
+  const handleCreateReport = () => {
+    if (currentLocation) {
+      navigate('IncidentReports', {  // Cambia esta ruta para que coincida con tu configuración
+        state: { location: currentLocation } 
+      });
+    } else {
+      alert("Por favor, obtén primero la ubicación.");
+    }
+  };
+
   return (
-    <div className="w-full min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Left side */}
-            <div className="flex items-center">
-              <Map className="h-6 w-6 text-gray-700" />
-              <span className="ml-2 text-xl font-semibold text-gray-900">Incident Tracker</span>
-            </div>
-
-            {/* Navigation */}
-            <nav className="hidden md:flex space-x-8">
-              <a href="#" className="text-gray-900 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                Dashboard
-              </a>
-              <a href="#" className="text-gray-900 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                Incidents
-              </a>
-              <a href="#" className="text-gray-900 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                Reports
-              </a>
-              <a href="#" className="text-gray-900 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                Teams
-              </a>
-              <a href="#" className="text-gray-900 hover:text-gray-700 px-3 py-2 text-sm font-medium">
-                Settings
-              </a>
-            </nav>
-
-            {/* Right side */}
-            <div className="flex items-center space-x-4">
-              <button className="p-2 rounded-full hover:bg-gray-100">
-                <Bell className="h-6 w-6 text-gray-700" />
-              </button>
-              <div className="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
-                <img
-                  src="/api/placeholder/32/32"
-                  alt="Profile"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header modificado para coincidir con el estilo anterior */}
+      <header className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={handleGoBack}
+              className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
+              title="Back"
+            >
+              <ArrowLeft className="w-6 h-6 text-gray-600" />
+            </button>
+            <h1 className="font-bold text-xl text-gray-800">
+              Ubicación del Incidente
+            </h1>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Incidents Map</h1>
-          <p className="text-sm text-gray-500">Last 24 hours</p>
-        </div>
-
-        {/* Map Container */}
-        <div className="relative w-full h-[600px] rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-          {/* Search Bar */}
-          <div className="absolute top-4 left-4 right-4 z-10">
-            <div className="max-w-2xl mx-auto">
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
-                  placeholder="Search location..."
-                />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                  <Navigation className="h-5 w-5 text-gray-400" />
-                </div>
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* Mapa y Controles */}
+        <div className="space-y-6">
+          {/* Contenedor del Mapa */}
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="relative w-full h-[400px] bg-gray-100 rounded-lg overflow-hidden">
+              {/* Aquí iría la integración real del mapa */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <button
+                  onClick={handleGetLocation}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Obtener Ubicación Actual
+                </button>
               </div>
+              
+              {currentLocation && (
+                <div className="absolute bottom-4 left-4 right-4 bg-white p-4 rounded-lg shadow-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Lat: {currentLocation.lat.toFixed(6)}, 
+                      Lng: {currentLocation.lng.toFixed(6)}
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleCopyLocation}
+                        className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        title="Copiar Ubicación"
+                      >
+                        <Copy className="w-5 h-5 text-gray-600" />
+                      </button>
+                      <button
+                        onClick={handleCreateReport}
+                        className="p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        title="Crear Informe"
+                      >
+                        <FileText className="w-5 h-5 text-blue-600" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Map Controls */}
-          <div className="absolute top-4 right-4 flex flex-col space-y-2">
-            <button className="p-2 bg-white rounded-lg shadow-sm border border-gray-300 hover:bg-gray-50">
-              <span className="text-xl font-medium">+</span>
-            </button>
-            <button className="p-2 bg-white rounded-lg shadow-sm border border-gray-300 hover:bg-gray-50">
-              <span className="text-xl font-medium">−</span>
-            </button>
+          {/* Instrucciones */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-gray-800 mb-4">
+              Instrucciones
+            </h2>
+            <ol className="space-y-3 text-gray-600">
+              <li>1. Haz clic en "Obtener Ubicación Actual" para detectar tu posición</li>
+              <li>2. Una vez detectada, podrás copiar las coordenadas o crear un informe</li>
+              <li>3. Usa el botón de copiar para guardar la ubicación al portapapeles</li>
+              <li>4. Selecciona crear informe para continuar con el registro del incidente</li>
+            </ol>
           </div>
         </div>
       </main>

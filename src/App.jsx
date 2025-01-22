@@ -277,7 +277,7 @@ const CitizenReporter = () => {
             className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
-            Community Chat
+            Community Notices
           </button>
           <button
             onClick={handleCategoryClick}
@@ -287,11 +287,9 @@ const CitizenReporter = () => {
             Category
           </button>
           <button
-            onClick={handleDescriptionClick}
-            className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+           
           >
-            <Menu className="w-5 h-5" />
-            Description
+            
           </button>
         </div>
       </div>
