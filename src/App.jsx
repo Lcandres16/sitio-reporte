@@ -32,7 +32,6 @@ import NotificationPage from "./components/notifications/NotificationPage";
 import NotificationButton from "./components/notifications/components/NotificationButton";
 import ENV from "./environment/env";
 
-// Protected Route component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated } = useAuth();
 
@@ -43,7 +42,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Protected Admin Route component
 const ProtectedAdminRoute = ({ children }) => {
   const { user, isAuthenticated } = useAuth();
 
@@ -54,7 +52,6 @@ const ProtectedAdminRoute = ({ children }) => {
   return children;
 };
 
-// Placeholder components for admin routes
 const AdminReportManagement = () => <div>Gestión de Reportes</div>;
 const AdminNoticeManagement = () => <div>Gestión de Noticias</div>;
 const AdminUserManagement = () => <div>Gestión de Usuarios</div>;
@@ -91,7 +88,7 @@ const CitizenReporter = () => {
     };
 
     fetchReports();
-    const interval = setInterval(fetchReports, 30000); // Poll every 30 seconds
+    const interval = setInterval(fetchReports, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -108,7 +105,6 @@ const CitizenReporter = () => {
     return `Hace ${Math.floor(diffInSeconds / 86400)} días`;
   };
 
-  // Navigation functions
   const handleCreateReport = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -123,7 +119,6 @@ const CitizenReporter = () => {
     setShowProfileMenu(false);
   };
 
-  // const handleDashboardClick = () => navigate("/dashboard");
   const handleExploreClick = () => navigate("/explore");
   const handleLocationClick = () => navigate("/location");
   const handleIncidentClick = () => navigate("/incidents");
@@ -136,8 +131,6 @@ const CitizenReporter = () => {
     navigate("/community-chat");
   };
   const handleCategoryClick = () => navigate("/dashboard");
-  const handleDescriptionClick = () => navigate("/description");
-
   const handleProfileClick = () => {
     if (!isAuthenticated) {
       navigate("/login");
@@ -151,7 +144,6 @@ const CitizenReporter = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -159,7 +151,7 @@ const CitizenReporter = () => {
               className="font-bold text-xl cursor-pointer"
               onClick={() => navigate("/")}
             >
-              Citizen Reporter
+              Reporte Cuidadano
             </span>
           </div>
           <div className="flex items-center gap-4">
@@ -185,8 +177,6 @@ const CitizenReporter = () => {
                     className="w-8 h-8 rounded-full cursor-pointer"
                     onClick={() => setShowProfileMenu(!showProfileMenu)}
                   />
-
-                  {/* Profile Dropdown Menu */}
                   {showProfileMenu && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
                       <button
@@ -218,37 +208,23 @@ const CitizenReporter = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <div className="relative bg-teal-100 h-72">
+      <div className="relative bg-gradient-to-b from-[#98f5e1] to-transparent h-72">
         <div className="max-w-6xl mx-auto px-4 py-16">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Welcome to Citizen Reporter
+            Bienvenido a Reporte Cuidadano
           </h1>
           <p className="text-lg text-gray-600 mb-8">
             A platform for you to report issues and incidents in your community
           </p>
+          <button
+      className="px-6 py-2 bg-grey-900 text-black rounded-lg hover:bg-blue-200 transition-colors"
+      onClick={handleCreateReport}
+    >
+      Create a report
+    </button>
+  </div>
+</div>   
 
-          {/* Search Bar */}
-          <div className="flex gap-2 max-w-2xl">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-              <input
-                type="text"
-                placeholder="What's happening?"
-                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <button
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-              onClick={handleCreateReport}
-            >
-              Create a report
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Category Buttons */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex flex-wrap gap-4">
           <button
@@ -286,15 +262,9 @@ const CitizenReporter = () => {
             <Grid3X3 className="w-5 h-5" />
             Category
           </button>
-          <button
-           
-          >
-            
-          </button>
         </div>
       </div>
 
-      {/* Recent Reports */}
       <div className="max-w-6xl mx-auto px-4 py-6">
         <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
         {loading ? (
@@ -308,9 +278,7 @@ const CitizenReporter = () => {
           </div>
         ) : reports.length === 0 ? (
           <div className="text-center py-8 bg-white rounded-lg border">
-            <p className="text-gray-500">
-              No reports yet. Be the first to create one!
-            </p>
+            <p className="text-gray-500">No reports yet. Be the first to create one!</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -386,7 +354,6 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          {/* Rutas existentes */}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<CitizenReporter />} />
           <Route
@@ -434,7 +401,6 @@ function App() {
           <Route path="/report/:id" element={<ReportDetailPage />} />
           <Route path="/media" element={<CommunicationMedia />} />
 
-          {/* Nuevas rutas de administrador */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin/*"
@@ -454,4 +420,5 @@ function App() {
     </Router>
   );
 }
+
 export default App;
