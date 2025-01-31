@@ -104,11 +104,11 @@ const IncidentReport = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-teal-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-2 flex items-center justify-between">
+      <header className="bg-white rounded-lg shadow-sm">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <button 
             onClick={() => navigate('/')} 
-            className="flex items-center gap-1 text-gray-800"
+            className="flex items-center gap-4 text-gray-1000"
           >
             <MapPin className="w-5 h-5" />
             <span className="font-semibold text-lg">Reporte Ciudadano</span>

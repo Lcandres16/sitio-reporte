@@ -52,7 +52,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <MapPin className="w-6 h-6" />
-          <span className="text-sm font-medium">Location</span>
+          <span className="text-sm font-medium">Ubicación</span>
         </button>
 
         <button
@@ -60,7 +60,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <FileText className="w-6 h-6" />
-          <span className="text-sm font-medium">Incident</span>
+          <span className="text-sm font-medium">Incidentes</span>
         </button>
 
         <button
@@ -68,7 +68,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <Image className="w-6 h-6" />
-          <span className="text-sm font-medium">Media</span>
+          <span className="text-sm font-medium">Medios de Comunicación</span>
         </button>
 
         <button
@@ -76,7 +76,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <MessageCircle className="w-6 h-6" />
-          <span className="text-sm font-medium">Community</span>
+          <span className="text-sm font-medium">Avisos </span>
         </button>
 
         <button
@@ -84,7 +84,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <Grid3X3 className="w-6 h-6" />
-          <span className="text-sm font-medium">Category</span>
+          <span className="text-sm font-medium">Categorias</span>
         </button>
       </div>
     </div>

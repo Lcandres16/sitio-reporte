@@ -100,7 +100,7 @@ const IncidentTracker = () => {
 
   const handleCreateReport = () => {
     if (currentLocation) {
-      navigate('/incidentreport', {
+      navigate('/report', {
         state: { 
           location: currentLocation,
           address: address
@@ -117,7 +117,7 @@ const IncidentTracker = () => {
 
   const handleIncidentClick = () => {
     if (currentLocation) {
-      navigate('/incidents', {
+      navigate('/report', {
         state: {
           location: currentLocation,
           address: address
@@ -128,7 +128,6 @@ const IncidentTracker = () => {
     }
   };
 
- 
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-white">
       <header className="bg-white/100 backdrop-blur-sm border-b sticky top-0 z-40">
@@ -150,13 +149,18 @@ const IncidentTracker = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="space-y-6">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4">
-            <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden border">
+          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-shadow border-[0.5px] p-4">
+            <div className="relative w-full aspect-square md:aspect-video rounded-xl overflow-hidden border">
               {currentLocation ? (
                 <MapContainer
                   center={currentLocation}
                   zoom={15}
-                  style={{ height: '100%', width: '100%' }}
+                  style={{ 
+                    height: '100%', 
+                    width: '100%', 
+                    position: 'relative' 
+                  }}
+                  className="z-10"
                 >
                   <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -177,7 +181,7 @@ const IncidentTracker = () => {
               )}
               
               {currentLocation && (
-                <div className="absolute top-4 left-4 right-4">
+                <div className="absolute top-4 left-4 right-4 z-20">
                   <button
                     onClick={handleGetLocation}
                     className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md"
@@ -190,7 +194,7 @@ const IncidentTracker = () => {
             
             {currentLocation && (
               <div className="mt-4 space-y-4">
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-600">
                       Lat: {currentLocation.lat.toFixed(6)}, 
@@ -215,7 +219,7 @@ const IncidentTracker = () => {
                   </div>
                 </div>
 
-                <div className="bg-white p-4 rounded-xl shadow-sm border">
+                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-gray-800">Dirección</h3>
                     <button
@@ -259,7 +263,7 @@ const IncidentTracker = () => {
             )}
           </div>
 
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6">
+          <div className="bg-white/90 backdrop-blur-md rounded-xl shadow-lg hover:shadow-xl transition-shadow border-[0.5px] p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Instrucciones
             </h2>

@@ -11,12 +11,13 @@ const MainDashboard = () => {
         navigate('/report');
         break;
       case 2:
-        navigate('location')
+        navigate('/incidentmaps')
         break;
       case 3:
         navigate('/incidentlist')
         break;
       case 4:
+        navigate('/media')
         break;
       default:
         break;
@@ -33,7 +34,7 @@ const MainDashboard = () => {
       title: "Reportar incidente",
       subtitle: "Reportar Incidente",
       description: "Ayúdanos a mejorar la ciudad reportando incidentes.",
-      image: "/api/placeholder/400/250",
+      image: "/images/maps",
       buttonText: "Reportar",
       category: "Reportar Incidente",
       bgColor: "bg-blue-50",
@@ -41,23 +42,23 @@ const MainDashboard = () => {
     },
     {
       id: 2,
-      title: "Mapa de incidentes",
-      subtitle: "Mapa de Incidentes",
-      description: "Descubre incidentes reportados en tu área.",
-      image: "/api/placeholder/400/250",
+      title: "Mapa para la Ubicación de Incidentes",
+      subtitle: "Mapa para la Ubicación de Incidentes",
+      description: "Copia la dirección del incidente para generar tu reporte.",
+      image: "/images/incident-maps.jpg",
       buttonText: "Ver mapa",
-      category: "Mapa de Incidentes",
+      category: "Mapa para la Ubicación de Incidentes",
       bgColor: "bg-green-50",
       buttonColor: "bg-green-500 hover:bg-green-600"
     },
     {
       id: 3,
-      title: "Lista de reportes",
-      subtitle: "Lista de reportes",
-      description: "Explora y sigue el estado de los reportes.",
-      image: "/api/placeholder/400/250",
+      title: "Lista de Incidentes",
+      subtitle: "Lista de Incidentes",
+      description: "Explora todos los incidentes reportados por sus categorias.",
+      image: "/images/incident-list.jpg",
       buttonText: "Ver lista",
-      category: "Lista de Reportes",
+      category: "Lista de Incidentes",
       bgColor: "bg-purple-50",
       buttonColor: "bg-purple-500 hover:bg-purple-600"
     },
@@ -66,7 +67,7 @@ const MainDashboard = () => {
       title: "Contacto de autoridades",
       subtitle: "Contacto de autoridades",
       description: "Encuentra información de contacto de autoridades locales.",
-      image: "/api/placeholder/400/250",
+      image: "/images/authorities-contact.jpg",
       buttonText: "Contactar",
       category: "Contacto de Autoridades",
       bgColor: "bg-orange-50",
@@ -75,8 +76,7 @@ const MainDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
+    <div className="min-h-screen bg-gradient-to-b from-teal-100/50 to-white">
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -86,7 +86,7 @@ const MainDashboard = () => {
           </div>
           <button 
             onClick={handleHomeClick}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 flex items-center gap-2"
+            className="px-4 py-2 bg-white-100 text-gray-700 rounded-lg hover:bg-blue-100 flex items-center gap-2"
           >
             <Home className="w-4 h-4" />
             Inicio
@@ -94,7 +94,6 @@ const MainDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Reporte Ciudadano</h1>
@@ -129,7 +128,7 @@ const MainDashboard = () => {
                 </p>
                 <button 
                   onClick={() => handleNavigation(section.id)}
-                  className={`${section.buttonColor} w-full text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200`}
+                  className={"flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"}
                 >
                   {section.buttonText}
                 </button>
