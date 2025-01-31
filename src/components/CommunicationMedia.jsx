@@ -56,14 +56,14 @@ const CommunicationMedia = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-teal-100/50 to-white">
       {/* Header */}
       <header className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button 
               onClick={handleGoBack}
-              className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
+              className="p-2 rounded-lg hover:bg-gray-100 mr-2"
               title="Regresar"
             >
               <ArrowLeft className="w-6 h-6 text-gray-600" />

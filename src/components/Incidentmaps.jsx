@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Copy, FileText, RefreshCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
-// Importar las imágenes localmente
 import markerIcon2x from '../assets/images/marker-icon-2x.png';
 import markerIcon from '../assets/images/marker-icon.png';
 import markerShadow from '../assets/images/marker-shadow.png';
 
-// Configurar los iconos por defecto de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -30,6 +28,7 @@ function MapUpdater({ center }) {
 
 const IncidentTracker = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [currentLocation, setCurrentLocation] = useState(null);
   const [address, setAddress] = useState(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
@@ -101,7 +100,7 @@ const IncidentTracker = () => {
 
   const handleCreateReport = () => {
     if (currentLocation) {
-      navigate('IncidentReports', {
+      navigate('/incidentreport', {
         state: { 
           location: currentLocation,
           address: address
@@ -113,17 +112,31 @@ const IncidentTracker = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1);
+    navigate('/');
   };
 
+  const handleIncidentClick = () => {
+    if (currentLocation) {
+      navigate('/incidents', {
+        state: {
+          location: currentLocation,
+          address: address
+        }
+      });
+    } else {
+      alert("Por favor, obtén primero la ubicación.");
+    }
+  };
+
+ 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
+    <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-white">
+      <header className="bg-white/100 backdrop-blur-sm border-b sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <button 
               onClick={handleGoBack}
-              className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
+              className="p-2 rounded-lg hover:bg-gray-100 mr-2"
               title="Back"
             >
               <ArrowLeft className="w-6 h-6 text-gray-600" />
@@ -137,8 +150,8 @@ const IncidentTracker = () => {
 
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="space-y-6">
-          <div className="bg-white rounded-lg shadow-sm p-4">
-            <div className="relative w-full h-[400px] rounded-lg overflow-hidden">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-4">
+            <div className="relative w-full h-[300px] md:h-[400px] rounded-xl overflow-hidden border">
               {currentLocation ? (
                 <MapContainer
                   center={currentLocation}
@@ -153,30 +166,31 @@ const IncidentTracker = () => {
                   <MapUpdater center={currentLocation} />
                 </MapContainer>
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
                   <button
                     onClick={handleGetLocation}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md"
                   >
                     Obtener Ubicación Actual
                   </button>
                 </div>
               )}
               
-              <div className="absolute top-4 left-4 right-4">
-                <button
-                  onClick={handleGetLocation}
-                  className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Actualizar Ubicación Actual
-                </button>
-              </div>
+              {currentLocation && (
+                <div className="absolute top-4 left-4 right-4">
+                  <button
+                    onClick={handleGetLocation}
+                    className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md"
+                  >
+                    Actualizar Ubicación Actual
+                  </button>
+                </div>
+              )}
             </div>
             
             {currentLocation && (
               <div className="mt-4 space-y-4">
-                {/* Sección de coordenadas */}
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-xl shadow-sm border">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-600">
                       Lat: {currentLocation.lat.toFixed(6)}, 
@@ -185,14 +199,14 @@ const IncidentTracker = () => {
                     <div className="flex gap-2">
                       <button
                         onClick={handleCopyLocation}
-                        className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all active:scale-95"
                         title="Copiar Ubicación"
                       >
                         <Copy className="w-5 h-5 text-gray-600" />
                       </button>
                       <button
-                        onClick={handleCreateReport}
-                        className="p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+                        onClick={handleIncidentClick}
+                        className="p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all active:scale-95"
                         title="Crear Informe"
                       >
                         <FileText className="w-5 h-5 text-blue-600" />
@@ -201,13 +215,12 @@ const IncidentTracker = () => {
                   </div>
                 </div>
 
-                {/* Sección de dirección */}
-                <div className="bg-white p-4 rounded-lg shadow-sm">
+                <div className="bg-white p-4 rounded-xl shadow-sm border">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-medium text-gray-800">Dirección</h3>
                     <button
                       onClick={handleRefreshAddress}
-                      className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all active:scale-95"
                       disabled={isLoadingAddress}
                       title="Actualizar dirección"
                     >
@@ -233,20 +246,29 @@ const IncidentTracker = () => {
                     <p className="text-sm text-gray-500">No se ha podido obtener la dirección</p>
                   )}
                 </div>
+
+                <div className="flex gap-4 mt-6">
+                  <button
+                    onClick={handleIncidentClick}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md"
+                  >
+                    Continuar con el Reporte
+                  </button>
+                </div>
               </div>
             )}
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg p-6">
             <h2 className="text-lg font-semibold text-gray-800 mb-4">
               Instrucciones
             </h2>
             <ol className="space-y-3 text-gray-600">
-              <li>1. El mapa mostrará automáticamente tu ubicación actual</li>
-              <li>2. Puedes actualizar tu ubicación usando el botón superior</li>
-              <li>3. Las coordenadas y la dirección aparecerán debajo del mapa</li>
-              <li>4. Si la dirección no es correcta, puedes actualizarla con el botón de refrescar</li>
-              <li>5. Usa el botón de copiar para guardar la ubicación o crea un informe</li>
+              <li className="pl-2">1. El mapa mostrará automáticamente tu ubicación actual</li>
+              <li className="pl-2">2. Puedes actualizar tu ubicación usando el botón superior</li>
+              <li className="pl-2">3. Las coordenadas y la dirección aparecerán debajo del mapa</li>
+              <li className="pl-2">4. Si la dirección no es correcta, puedes actualizarla con el botón de refrescar</li>
+              <li className="pl-2">5. Usa el botón de continuar para proceder con el reporte</li>
             </ol>
           </div>
         </div>

@@ -1,12 +1,14 @@
-import React from 'react';
-import { useQuery } from "@tanstack/react-query";
-import { Bell, Check, Clock, ArrowLeft } from "lucide-react";
-import notificationService from "../../services/notification-service";
+import { onMessage } from "firebase/messaging";
+import { messaging } from "../../firebase"; // Asegúrate de que la ruta sea correcta
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { ArrowLeft, Bell, Check, Clock } from "lucide-react/dist/cjs/lucide-react";
+import notificationService from "../../services/notification-service";
 
 const NotificationPage = () => {
   const navigate = useNavigate();
-  const { data: notifications } = useQuery({
+  const { data: notifications, refetch } = useQuery({
     queryFn: () => notificationService.findAllMine(),
     queryKey: ["notifications"],
   });
@@ -14,10 +16,22 @@ const NotificationPage = () => {
   useQuery({
     queryFn: () => notificationService.markAllAsRead(),
     refetchOnWindowFocus: true,
+    queryKey: ["notifications-count"]
   });
 
+  // Escucha notificaciones en primer plano
+  useEffect(() => {
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("Notificación recibida:", payload);
+      refetch(); // Refetch las notificaciones para actualizar la lista
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm">
+    <div className="min-h-screen bg-gradient-to-b from-teal-100/50 to-white">
       <div className="p-6 max-w-4xl mx-auto mt-16">
         <div className="bg-white/95 rounded-lg shadow-lg overflow-hidden">
           {/* Header with Back Button */}

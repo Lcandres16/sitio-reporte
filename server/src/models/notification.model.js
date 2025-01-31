@@ -5,29 +5,36 @@ const NotificationModel = sequelize.define(
   "notificaciones",
   {
     id: {
-      type: DataTypes.INTEGER(),
+      type: DataTypes.INTEGER,
       primaryKey: true,
+      autoIncrement: true
     },
-    usuarioId: {
-      type: DataTypes.INTEGER(),
-      field: "usuario_id",
+    usuario_id: {  // Cambiado de usuarioId
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
-    reporteId: {
-      type: DataTypes.INTEGER(),
-      field: "reporte_id",
+    reporte_id: {  // Cambiado de reporteId
+      type: DataTypes.INTEGER,
+      allowNull: true
     },
     tipo: {
-      type: DataTypes.STRING(),
+      type: DataTypes.STRING(50),
+      allowNull: false
     },
     leida: {
-      type: DataTypes.BOOLEAN(),
+      type: DataTypes.TINYINT(1),
+      defaultValue: 0
     },
-    createdAt: {
-      type: DataTypes.TIME(),
-      field: "created_at",
-    },
+    created_at: {  // Cambiado de createdAt
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    }
   },
-  { timestamps: false }
+  {
+    tableName: 'notificaciones',
+    timestamps: false,
+    underscored: true
+  }
 );
 
 module.exports = NotificationModel;

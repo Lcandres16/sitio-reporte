@@ -22,50 +22,40 @@ const IncidentList = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-teal-100/50 to-white">
       {/* Header */}
-      <header className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={handleGoBack}
-              className="bg-gray-100 p-2 rounded-lg hover:bg-gray-200 mr-2"
-              title="Back to Home"
-            >
-              <ArrowLeft className="w-6 h-6 text-gray-600" />
-            </button>
-            <h1 className="font-bold text-xl text-gray-800">
-              Lista de Incidentes
-            </h1>
-          </div>
+      <div className="bg-white border-b">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center">
+          <button 
+            onClick={handleGoBack}
+            className="p-2 rounded-lg hover:bg-gray-100 mr-2"
+          >
+            <ArrowLeft className="w-6 h-6 text-gray-600" />
+          </button>
+          <h1 className="font-bold text-xl text-gray-800">
+            Lista de Incidentes
+          </h1>
         </div>
-      </header>
-
-      {/* Barra de navegación con filtros */}
-      <nav className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Filtro por tipo de incidente */}
-            <div className="flex-1">
-              <select
-                className="w-full px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-              >
-                <option value="">Todos los tipos de incidentes</option>
-                {incidentTypes.map((type, index) => (
-                  <option key={index} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        </div>
-      </nav>
+      </div>
 
       {/* Contenido principal */}
-      <main className="max-w-6xl mx-auto px-4 py-8">
+      <main className="max-w-6xl mx-auto px-4 py-6">
+        {/* Botón de filtro */}
+        <div className="mb-6">
+          <select
+            className="px-4 py-2 border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+            value={selectedType}
+            onChange={(e) => setSelectedType(e.target.value)}
+          >
+            <option value="">Todos los tipos de incidentes</option>
+            {incidentTypes.map((type, index) => (
+              <option key={index} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+        </div>
+
         {/* Grid de incidentes */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {!incidents || incidents.length === 0 ? (
