@@ -34,10 +34,10 @@ const MainDashboard = () => {
       title: "Reportar incidente",
       subtitle: "Reportar Incidente",
       description: "Ayúdanos a mejorar la ciudad reportando incidentes.",
-      image: "/images/maps",
+      image: "/src/images/Maps.png", // Ruta de la imagen
       buttonText: "Reportar",
       category: "Reportar Incidente",
-      bgColor: "bg-blue-50",
+      bgColor: "bg-blue-10",
       buttonColor: "bg-blue-500 hover:bg-blue-600"
     },
     {
@@ -45,10 +45,10 @@ const MainDashboard = () => {
       title: "Mapa para la Ubicación de Incidentes",
       subtitle: "Mapa para la Ubicación de Incidentes",
       description: "Copia la dirección del incidente para generar tu reporte.",
-      image: "/images/incident-maps.jpg",
+      image: "/src/images/Reports.png", // Ruta de la imagen
       buttonText: "Ver mapa",
       category: "Mapa para la Ubicación de Incidentes",
-      bgColor: "bg-green-50",
+      bgColor: "bg-green-10",
       buttonColor: "bg-green-500 hover:bg-green-600"
     },
     {
@@ -56,7 +56,7 @@ const MainDashboard = () => {
       title: "Lista de Incidentes",
       subtitle: "Lista de Incidentes",
       description: "Explora todos los incidentes reportados por sus categorias.",
-      image: "/images/incident-list.jpg",
+      image: "/src/images/Medios.png", // Ruta de la imagen
       buttonText: "Ver lista",
       category: "Lista de Incidentes",
       bgColor: "bg-purple-50",
@@ -67,7 +67,7 @@ const MainDashboard = () => {
       title: "Contacto de autoridades",
       subtitle: "Contacto de autoridades",
       description: "Encuentra información de contacto de autoridades locales.",
-      image: "/images/authorities-contact.jpg",
+      image: "/src/images/Avisos.png", // Ruta de la imagen
       buttonText: "Contactar",
       category: "Contacto de Autoridades",
       bgColor: "bg-orange-50",
@@ -108,12 +108,16 @@ const MainDashboard = () => {
               key={section.id} 
               className={`bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer overflow-hidden ${section.bgColor}`}
             >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={section.image}
-                  alt={section.title}
-                  className="w-full h-full object-cover"
-                />
+              {/* Contenedor de la imagen de fondo */}
+              <div 
+                className="relative h-48 overflow-hidden"
+                style={{
+                  backgroundImage: `url(${section.image})`, // Usar la imagen como fondo
+                  backgroundSize: "cover", // Ajustar la imagen al contenedor
+                  backgroundPosition: "center" // Centrar la imagen
+                }}
+              >
+                {/* Capa oscura para mejorar la legibilidad del texto */}
                 <div className="absolute inset-0 bg-black bg-opacity-20 hover:bg-opacity-30 transition-opacity" />
               </div>
               <div className="p-4">

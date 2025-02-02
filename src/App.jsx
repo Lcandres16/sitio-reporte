@@ -10,7 +10,7 @@ import {
   Search,
   MapPin,
   FileText,
-  Image,
+  PhoneCall, // Nuevo ícono para Servicios Básicos
   MessageCircle,
   Grid3X3,
   Menu,
@@ -24,13 +24,14 @@ import Incidentmaps from "./components/Incidentmaps";
 import IncidentList from "./components/IncidentList";
 import LoginPage from "./components/LoginPage";
 import NeighborhoodChat from "./components/NeighborhoodChat";
-import CommunicationMedia from "./components/CommunicationMedia";
+import CommunicationMedia from "./components/CommunicationMedia"; // Página de Servicios Básicos
 import AdminLogin from "./components/admin/AdminLogin";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import ReportDetailPage from "./components/admin/reports/ReportDetailPage";
 import NotificationPage from "./components/notifications/NotificationPage";
 import NotificationButton from "./components/notifications/components/NotificationButton";
 import ENV from "./environment/env";
+import 'leaflet/dist/leaflet.css';
 
 const MobileNavigation = () => {
   const navigate = useNavigate();
@@ -63,12 +64,13 @@ const MobileNavigation = () => {
           <span className="text-sm font-medium">Incidentes</span>
         </button>
 
+        {/* Botón actualizado para Servicios Básicos */}
         <button
           onClick={() => handleNavigation('/media')}
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
-          <Image className="w-6 h-6" />
-          <span className="text-sm font-medium">Medios de Comunicación</span>
+          <PhoneCall className="w-6 h-6" /> {/* Nuevo ícono */}
+          <span className="text-sm font-medium">Medios de Comunicación</span> {/* Nuevo texto */}
         </button>
 
         <button
@@ -76,7 +78,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <MessageCircle className="w-6 h-6" />
-          <span className="text-sm font-medium">Avisos </span>
+          <span className="text-sm font-medium">Avisos</span>
         </button>
 
         <button
@@ -84,7 +86,7 @@ const MobileNavigation = () => {
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <Grid3X3 className="w-6 h-6" />
-          <span className="text-sm font-medium">Categorias</span>
+          <span className="text-sm font-medium">Categorías</span>
         </button>
       </div>
     </div>
@@ -179,7 +181,7 @@ const CitizenReporter = () => {
               className="px-4 py-2 hover:bg-gray-100 rounded-lg"
               onClick={() => navigate("/report")}
             >
-              Report
+              Reporte
             </button>
             {isAuthenticated ? (
               <>
@@ -209,7 +211,7 @@ const CitizenReporter = () => {
                         className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2"
                         onClick={() => navigate("/profile")}
                       >
-                        Profile
+                        Perfil
                       </button>
                       <button
                         className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-2 text-grey-400"
@@ -227,7 +229,7 @@ const CitizenReporter = () => {
                 className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 onClick={() => navigate("/login")}
               >
-                Login
+                Acceso
               </button>
             )}
           </div>
@@ -254,11 +256,11 @@ const CitizenReporter = () => {
       <MobileNavigation />
 
       <div className="max-w-6xl mx-auto px-4 py-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Reports</h2>
+        <h2 className="text-xl font-semibold mb-4">Informes recientes</h2>
         {loading ? (
           <div className="text-center py-8">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading reports...</p>
+            <p className="mt-4 text-gray-600">Cargando informes...</p>
           </div>
         ) : error ? (
           <div className="text-center py-8 bg-red-50 rounded-lg border border-red-200">
@@ -266,7 +268,7 @@ const CitizenReporter = () => {
           </div>
         ) : reports.length === 0 ? (
           <div className="text-center py-8 bg-white rounded-lg border">
-            <p className="text-gray-500">No reports yet. Be the first to create one!</p>
+            <p className="text-gray-500">Aún no hay informes. ¡Sé el primero en crear uno!</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -374,7 +376,7 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <div>Profile Page</div>
+                <div>Página de perfil</div>
               </ProtectedRoute>
             }
           />
@@ -387,7 +389,7 @@ function App() {
             }
           />
           <Route path="/report/:id" element={<ReportDetailPage />} />
-          <Route path="/media" element={<CommunicationMedia />} />
+          <Route path="/media" element={<CommunicationMedia />} /> {/* Página de Servicios Básicos */}
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin/*"
@@ -405,7 +407,6 @@ function App() {
         </Routes>
       </AuthProvider>
     </Router>
-
   );
 }
 

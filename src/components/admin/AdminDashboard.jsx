@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bell, FileText, Users, Menu, X } from "lucide-react";
+import { Bell, FileText, Users, Menu, X, LogOut } from "lucide-react"; // Importa LogOut
 import ReportPage from "./reports/ReportPage";
 import NoticePage from "./notice/NoticePage";
 import UsersPage from "./users/UsersPage";
@@ -8,15 +8,23 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("reports");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const NavButton = ({ icon: Icon, label, tabName }) => (
+  const handleLogout = () => {
+    // Aquí puedes agregar la lógica para cerrar sesión
+    // Por ejemplo, eliminar el token de autenticación, limpiar el estado, etc.
+    console.log("Sesión cerrada");
+    // Redirigir al usuario a la página de inicio de sesión
+    window.location.href = "/admin/login"; // Cambia "/login" por la ruta correcta
+  };
+
+  const NavButton = ({ icon: Icon, label, tabName, onClick }) => (
     <button
-      onClick={() => {
+      onClick={onClick || (() => {
         setActiveTab(tabName);
         setIsMobileMenuOpen(false);
-      }}
+      })}
       className={`flex items-center w-full p-4 transition-colors duration-200 ${
         activeTab === tabName
-          ? "bg-blue-50 text-blue-600"
+          ? "bg-indigo-50 text-indigo-600" // Cambio a indigo
           : "text-gray-600 hover:bg-gray-50"
       }`}
     >
@@ -26,9 +34,9 @@ export default function AdminDashboard() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 md:flex-row">
+    <div className="flex flex-col h-screen bg-gray-50 md:flex-row">
       {/* Mobile Header */}
-      <div className="flex items-center justify-between p-4 bg-white shadow md:hidden">
+      <div className="flex items-center justify-between p-4 bg-white shadow-md md:hidden">
         <h2 className="text-xl font-bold text-gray-800">Panel Admin</h2>
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -64,12 +72,18 @@ export default function AdminDashboard() {
             label="Gestión Usuarios"
             tabName="users"
           />
+          {/* Botón de Cerrar Sesión */}
+          <NavButton
+            icon={LogOut}
+            label="Cerrar Sesión"
+            onClick={handleLogout}
+          />
         </nav>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
-        <header className="bg-white shadow">
+        <header className="bg-white shadow-md">
           <div className="px-4 py-4 md:px-6">
             <h1 className="text-xl md:text-2xl font-bold text-gray-800">
               {activeTab === "reports" && "Gestión de Reportes"}
