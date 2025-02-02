@@ -7,12 +7,14 @@ services:
     build: .
     ports:
       - "${PORT}:${PORT}"
+      - "${HTTPS_PORT}:${HTTPS_PORT}"
     env_file: ./.env
     networks:
       - report-network
     volumes:
       - ./dist:/home/app/dist
       - ./src:/home/app/src
+      - ./certs:/home/app/certs
   database:
     image: mysql:9.0.1
     environment:

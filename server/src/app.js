@@ -4,7 +4,7 @@ const path = require("path");
 require("dotenv").config();
 
 // Importar la configuración de la base de datos
-const db = require('./models');
+const db = require("./models");
 
 // Importación de rutas
 const usuarioRoutes = require("./routes/usuario.routes");
@@ -13,6 +13,9 @@ const reporteRoutes = require("./routes/reporte.routes");
 const adminRoutes = require("./routes/admin.routes");
 const avisoRouter = require("./routes/aviso.routes");
 const notificationRouter = require("./routes/notification.routes");
+const ENV = require("./config/environment");
+const redirectHttpToHttps = require("./middlewares/redirectToHttps");
+const https = require("https");
 
 const app = express();
 
@@ -65,15 +68,37 @@ app.get("*", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 // Sincronizar la base de datos y luego iniciar el servidor
-db.sequelize.sync()
+db.sequelize
+  .sync()
   .then(() => {
+    console.log(ENV);
+    const options = {
+      cert: require("fs").readFileSync(ENV.CERT_SSL_PATH || "", "utf-8"),
+      key: require("fs").readFileSync(ENV.KEY_SSL_PATH || "", "utf-8"),
+    };
+
+    const server = https.createServer(options, app);
+
+    server.listen(ENV.HTTPS_PORT, () => {
+      console.log(`https server has started in port ${ENV.HTTPS_PORT}`);
+    });
+
+    if (ENV.HTTPS_REDIRECT) {
+      const httpServer = express();
+      httpServer.get("*", redirectHttpToHttps);
+      httpServer.listen(ENV.PORT, () => {
+        console.log(`http server has started in port ${ENV.PORT}`);
+      });
+      return;
+    }
+
     app.listen(PORT, () => {
-      console.log('Base de datos sincronizada');
+      console.log("Base de datos sincronizada");
       console.log(`Servidor corriendo en el puerto ${PORT}`);
     });
   })
-  .catch(err => {
-    console.error('Error al sincronizar la base de datos:', err);
+  .catch((err) => {
+    console.error("Error al sincronizar la base de datos:", err);
   });
 
 module.exports = app;
