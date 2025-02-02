@@ -1,6 +1,6 @@
 // ReportCard.jsx
 import { useMutation } from "@tanstack/react-query";
-import { CheckCircle, FileDown } from "lucide-react";
+import { CheckCircle, Copy } from "lucide-react"; // Cambiar FileDown por Copy
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
 import reportService from "../../../services/report-service";
@@ -14,56 +14,29 @@ const ReportCard = ({ report, afterUpdate }) => {
     onSuccess: afterUpdate,
   });
 
-  const handleDownloadReport = async (e) => {
+  const handleCopyCoordinates = async (e) => {
     e.stopPropagation();
     try {
-      // Mostrar indicador de carga
-      const loadingToast = toast.loading('Generando PDF...');
+      // Obtener las coordenadas del campo "ubicacion"
+      const ubicacion = report.ubicacion; // Ejemplo: "Coordenadas: -2.9130752, -78.9970944"
       
-      const response = await fetch(`/api/reporte/download/${report.id}`, {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/pdf',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      // Extraer solo las coordenadas usando una expresión regular
+      const coordenadasRegex = /-?\d+\.\d+,\s*-?\d+\.\d+/;
+      const coordenadas = ubicacion.match(coordenadasRegex)?.[0];
+
+      // Verificar si las coordenadas existen
+      if (!coordenadas) {
+        throw new Error('No se encontraron coordenadas en este reporte.');
       }
+
+      // Copiar las coordenadas al portapapeles
+      await navigator.clipboard.writeText(coordenadas);
       
-      // Obtener el blob del PDF
-      const blob = await response.blob();
-      console.log('Response type:', response.type);
-      console.log('Blob size:', blob.size);
-      
-      // Verificar que el blob sea válido
-      if (blob.size === 0) {
-        throw new Error('El archivo PDF está vacío');
-      }
-      
-      // Crear URL del blob
-      const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-      
-      // Crear elemento de descarga
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `Reporte-${report.titulo}.pdf`;
-      
-      // Agregar a DOM, hacer clic y limpiar
-      document.body.appendChild(link);
-      link.click();
-      
-      // Limpiar
-      setTimeout(() => {
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(link);
-        toast.dismiss(loadingToast);
-        toast.success('PDF descargado exitosamente');
-      }, 100);
-      
+      // Mostrar notificación de éxito
+      toast.success('Coordenadas copiadas al portapapeles');
     } catch (error) {
-      console.error('Error al descargar:', error);
-      toast.error('Error al descargar el reporte. Por favor intente nuevamente.');
+      console.error('Error al copiar las coordenadas:', error);
+      toast.error(error.message || 'Error al copiar las coordenadas. Por favor intente nuevamente.');
     }
   };
 
@@ -83,6 +56,7 @@ const ReportCard = ({ report, afterUpdate }) => {
               Categoría: {report?.categoria_nombre}
             </p>
             <p className="text-sm text-gray-600">Estado: {report?.estado}</p>
+            <p className="text-sm text-gray-600">Ubicación: {report?.ubicacion}</p> {/* Mostrar la ubicación completa */}
           </div>
           <div className="flex gap-2">
             <button
@@ -101,9 +75,9 @@ const ReportCard = ({ report, afterUpdate }) => {
             </button>
             <button 
               className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              onClick={handleDownloadReport}
+              onClick={handleCopyCoordinates} // Cambiar a la nueva función
             >
-              <FileDown className="w-5 h-5" />
+              <Copy className="w-5 h-5" /> {/* Cambiar el ícono a Copy */}
             </button>
           </div>
         </div>
@@ -119,6 +93,7 @@ ReportCard.propTypes = {
     categoria_nombre: PropTypes.string.isRequired,
     estado: PropTypes.string.isRequired,
     usuario_id: PropTypes.number.isRequired,
+    ubicacion: PropTypes.string.isRequired, // Asegúrate de que el campo de ubicación esté definido
   }).isRequired,
   afterUpdate: PropTypes.func.isRequired,
 };

@@ -1,19 +1,17 @@
 import { useState } from "react";
-import { Bell, FileText, Users, Menu, X, LogOut } from "lucide-react"; // Importa LogOut
+import { Bell, FileText, Users, Menu, X, LogOut, Map } from "lucide-react";
 import ReportPage from "./reports/ReportPage";
 import NoticePage from "./notice/NoticePage";
 import UsersPage from "./users/UsersPage";
+import MapPage from './Maps/MapPage';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("reports");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    // Aquí puedes agregar la lógica para cerrar sesión
-    // Por ejemplo, eliminar el token de autenticación, limpiar el estado, etc.
     console.log("Sesión cerrada");
-    // Redirigir al usuario a la página de inicio de sesión
-    window.location.href = "/admin/login"; // Cambia "/login" por la ruta correcta
+    window.location.href = "/admin/login";
   };
 
   const NavButton = ({ icon: Icon, label, tabName, onClick }) => (
@@ -24,7 +22,7 @@ export default function AdminDashboard() {
       })}
       className={`flex items-center w-full p-4 transition-colors duration-200 ${
         activeTab === tabName
-          ? "bg-indigo-50 text-indigo-600" // Cambio a indigo
+          ? "bg-indigo-50 text-indigo-600"
           : "text-gray-600 hover:bg-gray-50"
       }`}
     >
@@ -72,7 +70,11 @@ export default function AdminDashboard() {
             label="Gestión Usuarios"
             tabName="users"
           />
-          {/* Botón de Cerrar Sesión */}
+          <NavButton
+            icon={Map}
+            label="Ver Mapa"
+            tabName="map"
+          />
           <NavButton
             icon={LogOut}
             label="Cerrar Sesión"
@@ -89,6 +91,7 @@ export default function AdminDashboard() {
               {activeTab === "reports" && "Gestión de Reportes"}
               {activeTab === "notices" && "Crear Nuevo Aviso"}
               {activeTab === "users" && "Gestión de Usuarios"}
+              {activeTab === "map" && "Vista de Mapa"}
             </h1>
           </div>
         </header>
@@ -97,6 +100,7 @@ export default function AdminDashboard() {
           {activeTab === "reports" && <ReportPage />}
           {activeTab === "notices" && <NoticePage />}
           {activeTab === "users" && <UsersPage />}
+          {activeTab === "map" && <MapPage />}
         </main>
       </div>
     </div>
