@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from "@tanstack/react-query";
-import { FileText, Loader } from "lucide-react";
+import { FileText, Loader, Download } from "lucide-react";
 import reportService from "../../../services/report-service";
 import ReportCard from "./ReportCard";
 
@@ -41,16 +41,10 @@ const ReportPage = () => {
           </div>
           
           {/* Stats Summary */}
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <div className="text-sm text-gray-500">Total Reportes</div>
               <div className="text-2xl font-semibold">{reports?.length || 0}</div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <div className="text-sm text-gray-500">Pendientes</div>
-              <div className="text-2xl font-semibold text-yellow-600">
-                {reports?.filter(r => r.estado === 'pendiente').length || 0}
-              </div>
             </div>
             <div className="bg-white p-4 rounded-lg shadow-sm">
               <div className="text-sm text-gray-500">Resueltos</div>
@@ -64,7 +58,7 @@ const ReportPage = () => {
         {/* Reports Grid */}
         {reports?.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <Download className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900">No hay reportes</h3>
             <p className="mt-1 text-gray-500">
               Aún no se han registrado reportes en el sistema.

@@ -154,7 +154,7 @@ const IncidentReport = () => {
                   value={formData.descripcion}
                   onChange={handleInputChange}
                   className="w-full px-3 py-2 border rounded-md text-sm h-24 resize-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-                  placeholder="Describe el problema..."
+                  placeholder="Describe el problema y adjunte un numero telefónico al cual podamos contactar si la situación lo amerita."
                   required
                 />
               </div>
