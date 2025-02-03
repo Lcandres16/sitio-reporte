@@ -1,7 +1,7 @@
 networks:
   report-network:
 volumes:
-  mysq-data:
+  mysql-data:
     driver: local
 services:
   backend:
