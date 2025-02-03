@@ -1,5 +1,8 @@
 networks:
   report-network:
+volumes:
+  mysq-data:
+    driver: local
 services:
   backend:
     depends_on:
@@ -20,8 +23,12 @@ services:
     environment:
       - MYSQL_DATABASE=citizen_reporter
       - MYSQL_ROOT_PASSWORD=admin
+    ports:
+      - 3306:3306
     networks:
       - report-network
+    volumes:
+      - mysql-data:/var/lib/mysql
   flyway:
     image: flyway/flyway
     volumes:
