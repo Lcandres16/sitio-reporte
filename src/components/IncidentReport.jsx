@@ -82,7 +82,7 @@ const IncidentReport = () => {
         formDataToSend.append("imagen", imageFile);
       }
 
-      const response = await fetch("http://localhost:3000/api/reportes", {
+      const response = await fetch(`${ENV.API_URL}/reportes`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
