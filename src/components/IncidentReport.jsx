@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { MapPin, Upload, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../Context/AuthContext";
 import ENV from "../environment/env";
 
 const IncidentReport = () => {
-  // ... [Todo el estado y efectos permanecen igual]
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [imagePreview, setImagePreview] = useState(null);
   const [imageFile, setImageFile] = useState(null);
@@ -15,18 +15,26 @@ const IncidentReport = () => {
     titulo: "",
     descripcion: "",
     categoria_id: "",
-    ubicacion: "",
+    ubicacion: location.state?.address || "",
     estado: "no_evaluado",
   });
 
   const [categorias, setCategorias] = useState([]);
 
-  // ... [Todos los useEffect y handlers permanecen igual]
   useEffect(() => {
     if (!user) {
       navigate("/login");
     }
   }, [user, navigate]);
+
+  useEffect(() => {
+    if (location.state?.address) {
+      setFormData(prev => ({
+        ...prev,
+        ubicacion: location.state.address
+      }));
+    }
+  }, [location.state]);
 
   useEffect(() => {
     const fetchCategorias = async () => {
@@ -102,7 +110,7 @@ const IncidentReport = () => {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-teal-50">
       <header className="bg-white rounded-lg shadow-sm">

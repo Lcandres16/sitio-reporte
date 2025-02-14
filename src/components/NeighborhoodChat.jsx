@@ -15,8 +15,13 @@ const AnnouncementsBoard = () => {
     refetchOnWindowFocus: true,
   });
 
+  // Ordenar los anuncios por fecha más reciente
+  const sortedAnnouncements = announcements ? [...announcements].sort((a, b) => {
+    return new Date(b.created_at) - new Date(a.created_at);
+  }) : [];
+
   const handleGoBack = () => {
-    navigate(-1); // Volvemos a usar la navegación original que funcionaba
+    navigate(-1);
   };
 
   const handleOpenDetails = (announcement) => {
@@ -47,7 +52,7 @@ const AnnouncementsBoard = () => {
       {/* Main Content */}
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="space-y-6">
-          {announcements?.length === 0 ? (
+          {sortedAnnouncements.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
               <div className="p-6 flex flex-col items-center">
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
@@ -62,7 +67,7 @@ const AnnouncementsBoard = () => {
               </div>
             </div>
           ) : (
-            announcements?.map((announcement, index) => (
+            sortedAnnouncements.map((announcement, index) => (
               <article
                 key={announcement.id}
                 className="group bg-white rounded-xl shadow-sm border border-gray-100

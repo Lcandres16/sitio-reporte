@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Copy, FileText, RefreshCw } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -16,13 +16,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-function MapUpdater({ center }) {
+function MapUpdater({ center, onClick }) {
   const map = useMap();
+  
+  useMapEvents({
+    click: (e) => {
+      onClick(e.latlng);
+    },
+  });
+
   useEffect(() => {
     if (center) {
       map.setView(center, 15);
     }
   }, [center, map]);
+  
   return null;
 }
 
@@ -60,6 +68,11 @@ const IncidentTracker = () => {
     } finally {
       setIsLoadingAddress(false);
     }
+  };
+
+  const handleMapClick = async (latlng) => {
+    setCurrentLocation(latlng);
+    await getAddressFromCoordinates(latlng.lat, latlng.lng);
   };
 
   const handleGetLocation = () => {
@@ -155,11 +168,7 @@ const IncidentTracker = () => {
                 <MapContainer
                   center={currentLocation}
                   zoom={15}
-                  style={{ 
-                    height: '100%', 
-                    width: '100%', 
-                    position: 'relative' 
-                  }}
+                  style={{ height: '100%', width: '100%', position: 'relative' }}
                   className="z-10"
                 >
                   <TileLayer
@@ -167,7 +176,7 @@ const IncidentTracker = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                   <Marker position={currentLocation} />
-                  <MapUpdater center={currentLocation} />
+                  <MapUpdater center={currentLocation} onClick={handleMapClick} />
                 </MapContainer>
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-50">
@@ -269,8 +278,8 @@ const IncidentTracker = () => {
             </h2>
             <ol className="space-y-3 text-gray-600">
               <li className="pl-2">1. El mapa mostrará automáticamente tu ubicación actual</li>
-              <li className="pl-2">2. Puedes actualizar tu ubicación usando el botón superior</li>
-              <li className="pl-2">3. Las coordenadas y la dirección aparecerán debajo del mapa</li>
+              <li className="pl-2">2. Haz clic en cualquier punto del mapa para seleccionar una ubicación diferente</li>
+              <li className="pl-2">3. Las coordenadas y la dirección se actualizarán automáticamente</li>
               <li className="pl-2">4. Si la dirección no es correcta, puedes actualizarla con el botón de refrescar</li>
               <li className="pl-2">5. Usa el botón de continuar para proceder con el reporte</li>
             </ol>
