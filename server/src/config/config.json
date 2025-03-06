@@ -3,7 +3,7 @@
     "username": "root",
     "password": "admin",
     "database": "citizen_reporter",
-    "host": "database",
+    "host": "localhost",
     "dialect": "mysql"
   }
 }
