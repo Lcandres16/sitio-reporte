@@ -10,7 +10,7 @@ import {
   Search,
   MapPin,
   FileText,
-  PhoneCall, // Nuevo ícono para Servicios Básicos
+  PhoneCall,
   MessageCircle,
   Grid3X3,
   Menu,
@@ -24,7 +24,7 @@ import Incidentmaps from "./components/Incidentmaps";
 import IncidentList from "./components/IncidentList";
 import LoginPage from "./components/LoginPage";
 import NeighborhoodChat from "./components/NeighborhoodChat";
-import CommunicationMedia from "./components/CommunicationMedia"; // Página de Servicios Básicos
+import CommunicationMedia from "./components/CommunicationMedia";
 import AdminLogin from "./components/admin/AdminLogin";
 import AdminDashboard from "./components/admin/AdminDashboard";
 import ReportDetailPage from "./components/admin/reports/ReportDetailPage";
@@ -49,7 +49,7 @@ const MobileNavigation = () => {
     <div className="max-w-6xl mx-auto px-4 py-6">
       <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
         <button
-          onClick={() => handleNavigation('/incidentmaps')}
+          onClick={() => handleNavigation('/incidentmaps', true)}
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <MapPin className="w-6 h-6" />
@@ -57,20 +57,19 @@ const MobileNavigation = () => {
         </button>
 
         <button
-          onClick={() => handleNavigation('/incidentlist')}
+          onClick={() => handleNavigation('/incidentlist', true)}
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <FileText className="w-6 h-6" />
           <span className="text-sm font-medium">Incidentes</span>
         </button>
 
-        {/* Botón actualizado para Servicios Básicos */}
         <button
           onClick={() => handleNavigation('/media')}
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
-          <PhoneCall className="w-6 h-6" /> {/* Nuevo ícono */}
-          <span className="text-sm font-medium">Medios de Comunicación</span> {/* Nuevo texto */}
+          <PhoneCall className="w-6 h-6" />
+          <span className="text-sm font-medium">Medios de Comunicación</span>
         </button>
 
         <button
@@ -82,7 +81,7 @@ const MobileNavigation = () => {
         </button>
 
         <button
-          onClick={() => handleNavigation('/dashboard')}
+          onClick={() => handleNavigation('/dashboard', true)}
           className="flex flex-col items-center justify-center gap-2 p-4 bg-white border rounded-lg hover:bg-gray-50 active:bg-gray-100 transition-colors touch-manipulation"
         >
           <Grid3X3 className="w-6 h-6" />
@@ -164,6 +163,14 @@ const CitizenReporter = () => {
     setShowProfileMenu(false);
   };
 
+  const handleReportButtonClick = () => {
+    if (!isAuthenticated()) {
+      navigate("/login");
+    } else {
+      navigate("/report");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b">
@@ -179,7 +186,7 @@ const CitizenReporter = () => {
           <div className="flex items-center gap-4">
             <button
               className="px-4 py-2 hover:bg-gray-100 rounded-lg"
-              onClick={() => navigate("/report")}
+              onClick={handleReportButtonClick}
             >
               Reporte
             </button>
@@ -246,7 +253,7 @@ const CitizenReporter = () => {
           </p>
           <button
             className="px-6 py-2 bg-grey-200 text-black rounded-lg hover:bg-blue-200 transition-colors"
-            onClick={() => navigate("/report")}
+            onClick={handleReportButtonClick}
           >
             Crear Reporte
           </button>
@@ -276,7 +283,13 @@ const CitizenReporter = () => {
               <div
                 key={report.id}
                 className="flex items-center justify-between p-4 bg-white rounded-lg border hover:shadow-md transition-shadow cursor-pointer"
-                onClick={() => navigate(`/report/${report.id}`)}
+                onClick={() => {
+                  if (isAuthenticated()) {
+                    navigate(`/report/${report.id}`);
+                  } else {
+                    navigate("/login");
+                  }
+                }}
               >
                 <div className="flex items-center gap-4">
                   {report.imagen ? (
@@ -346,6 +359,7 @@ function App() {
         <Routes>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/" element={<CitizenReporter />} />
+          <Route path="/media" element={<CommunicationMedia />} />
           <Route
             path="/dashboard"
             element={
@@ -370,8 +384,22 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/incidentmaps" element={<Incidentmaps />} />
-          <Route path="/incidentlist" element={<IncidentList />} />
+          <Route
+            path="/incidentmaps"
+            element={
+              <ProtectedRoute>
+                <Incidentmaps />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/incidentlist"
+            element={
+              <ProtectedRoute>
+                <IncidentList />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/profile"
             element={
@@ -388,8 +416,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/report/:id" element={<ReportDetailPage />} />
-          <Route path="/media" element={<CommunicationMedia />} /> {/* Página de Servicios Básicos */}
+          <Route
+            path="/report/:id"
+            element={
+              <ProtectedRoute>
+                <ReportDetailPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin/*"
