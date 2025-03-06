@@ -18,7 +18,6 @@ const IncidentReport = () => {
     ubicacion: location.state?.address || "",
     estado: "no_evaluado",
   });
-
   const [categorias, setCategorias] = useState([]);
 
   useEffect(() => {
@@ -46,7 +45,6 @@ const IncidentReport = () => {
         console.error("Error al cargar categorías:", error);
       }
     };
-
     fetchCategorias();
   }, []);
 
@@ -78,18 +76,15 @@ const IncidentReport = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("usuario_id", user.id);
       Object.keys(formData).forEach((key) => {
         formDataToSend.append(key, formData[key]);
       });
-
       if (imageFile) {
         formDataToSend.append("imagen", imageFile);
       }
-
       const response = await fetch(`${ENV.API_URL}/reportes`, {
         method: "POST",
         headers: {
@@ -97,11 +92,9 @@ const IncidentReport = () => {
         },
         body: formDataToSend,
       });
-
       if (!response.ok) {
         throw new Error("Error al crear el reporte");
       }
-
       navigate("/");
     } catch (error) {
       console.error("Error:", error);
@@ -110,7 +103,7 @@ const IncidentReport = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-emerald-100 to-teal-50">
       <header className="bg-white rounded-lg shadow-sm">
@@ -129,7 +122,6 @@ const IncidentReport = () => {
           )}
         </div>
       </header>
-
       <main className="max-w-4xl mx-auto p-4">
         <div className="bg-white rounded-lg shadow-sm">
           <div className="p-4 sm:p-6">
@@ -137,40 +129,31 @@ const IncidentReport = () => {
               Reportar un problema
             </h1>
             <p className="text-sm text-gray-500 mb-6">
-              Su informe será público. Cualquiera podrá ver su nombre y la foto
-              que suba.
+              Su informe será público. Cualquiera podrá ver su nombre y la foto que suba.
             </p>
-
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Título
-                </label>
-                <input
-                  type="text"
-                  name="titulo"
-                  value={formData.titulo}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border rounded-md text-sm focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
-                  placeholder="Título breve del problema..."
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
+                  Reporte
                 </label>
                 <textarea
                   name="descripcion"
                   value={formData.descripcion}
-                  onChange={handleInputChange}
+                  onChange={(e) => {
+                    handleInputChange(e);
+                    // Usar las primeras palabras como título automáticamente
+                    const texto = e.target.value;
+                    const primerasPalabras = texto.split(' ').slice(0, 5).join(' ');
+                    setFormData(prev => ({
+                      ...prev,
+                      titulo: primerasPalabras
+                    }));
+                  }}
                   className="w-full px-3 py-2 border rounded-md text-sm h-24 resize-none focus:ring-1 focus:ring-teal-500 focus:border-teal-500"
                   placeholder="Describe el problema y adjunte un numero telefónico al cual podamos contactar si la situación lo amerita."
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Categoría
@@ -190,7 +173,6 @@ const IncidentReport = () => {
                   ))}
                 </select>
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ubicación
@@ -205,7 +187,6 @@ const IncidentReport = () => {
                   required
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Subir Foto
@@ -248,7 +229,6 @@ const IncidentReport = () => {
                   )}
                 </div>
               </div>
-
               <button
                 type="submit"
                 disabled={loading}

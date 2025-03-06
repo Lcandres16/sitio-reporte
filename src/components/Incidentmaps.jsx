@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Copy, FileText, RefreshCw } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -41,6 +41,8 @@ const IncidentTracker = () => {
   const [address, setAddress] = useState(null);
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
   const [addressError, setAddressError] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [clickPosition, setClickPosition] = useState(null);
 
   useEffect(() => {
     handleGetLocation();
@@ -72,6 +74,8 @@ const IncidentTracker = () => {
 
   const handleMapClick = async (latlng) => {
     setCurrentLocation(latlng);
+    setClickPosition(latlng); // Store the click position for popup
+    setShowPopup(true);
     await getAddressFromCoordinates(latlng.lat, latlng.lng);
   };
 
@@ -84,6 +88,8 @@ const IncidentTracker = () => {
             lng: position.coords.longitude
           };
           setCurrentLocation(newLocation);
+          setClickPosition(newLocation); // Set initial position for popup
+          setShowPopup(false); // Don't show popup on initial location
           await getAddressFromCoordinates(newLocation.lat, newLocation.lng);
         },
         (error) => {
@@ -103,42 +109,44 @@ const IncidentTracker = () => {
   };
 
   const handleCopyLocation = () => {
-    if (currentLocation && address) {
-      const locationString = `Dirección: ${address}\nCoordenadas: ${currentLocation.lat}, ${currentLocation.lng}`;
+    if (currentLocation) {
+      const locationString = `${currentLocation.lat.toFixed(6)},${currentLocation.lng.toFixed(6)}`;
       navigator.clipboard.writeText(locationString)
-        .then(() => alert("Ubicación y dirección copiadas al portapapeles"))
+        .then(() => alert("Coordenadas copiadas al portapapeles"))
         .catch(err => console.error("Error al copiar:", err));
     }
   };
 
   const handleCreateReport = () => {
     if (currentLocation) {
+      // Create coordinates string for consistency
+      const coordinatesString = `${currentLocation.lat.toFixed(6)},${currentLocation.lng.toFixed(6)}`;
+      
+      // Log what we're sending to help with debugging
+      console.log("Sending to report page:", {
+        location: currentLocation,
+        address: address,
+        coordinates: coordinatesString
+      });
+      
+      // Navigate with all data properly formatted
       navigate('/report', {
         state: { 
-          location: currentLocation,
-          address: address
+          location: {
+            lat: currentLocation.lat,
+            lng: currentLocation.lng
+          },
+          address: address,
+          coordinates: coordinatesString
         }
       });
     } else {
-      alert("Por favor, obtén primero la ubicación.");
+      alert("Por favor, selecciona primero una ubicación en el mapa.");
     }
   };
 
   const handleGoBack = () => {
     navigate('/');
-  };
-
-  const handleIncidentClick = () => {
-    if (currentLocation) {
-      navigate('/report', {
-        state: {
-          location: currentLocation,
-          address: address
-        }
-      });
-    } else {
-      alert("Por favor, obtén primero la ubicación.");
-    }
   };
 
   return (
@@ -176,6 +184,24 @@ const IncidentTracker = () => {
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                   />
                   <Marker position={currentLocation} />
+                  {showPopup && clickPosition && (
+                    <Popup 
+                      position={clickPosition} 
+                      autoOpen={true}
+                      onClose={() => setShowPopup(false)}
+                    >
+                      <div className="text-center p-1">
+                        <p className="font-medium text-gray-800">¿Esta es la dirección correcta?</p>
+                        {isLoadingAddress ? (
+                          <p className="text-xs text-gray-500 mt-1">Cargando dirección...</p>
+                        ) : address ? (
+                          <p className="text-xs text-gray-600 mt-1 max-w-64 truncate">{address}</p>
+                        ) : (
+                          <p className="text-xs text-gray-500 mt-1">No se pudo cargar la dirección</p>
+                        )}
+                      </div>
+                    </Popup>
+                  )}
                   <MapUpdater center={currentLocation} onClick={handleMapClick} />
                 </MapContainer>
               ) : (
@@ -200,72 +226,67 @@ const IncidentTracker = () => {
                 </div>
               )}
             </div>
-            
+
             {currentLocation && (
               <div className="mt-4 space-y-4">
+                {/* Panel unificado con dirección y coordenadas */}
                 <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600">
-                      Lat: {currentLocation.lat.toFixed(6)}, 
-                      Lng: {currentLocation.lng.toFixed(6)}
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="font-medium text-gray-800">Información de Ubicación</h3>
                     <div className="flex gap-2">
+                      <button
+                        onClick={handleRefreshAddress}
+                        className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all active:scale-95"
+                        disabled={isLoadingAddress}
+                        title="Actualizar dirección"
+                      >
+                        <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoadingAddress ? 'animate-spin' : ''}`} />
+                      </button>
                       <button
                         onClick={handleCopyLocation}
                         className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all active:scale-95"
-                        title="Copiar Ubicación"
+                        title="Copiar Coordenadas"
                       >
                         <Copy className="w-5 h-5 text-gray-600" />
                       </button>
-                      <button
-                        onClick={handleIncidentClick}
-                        className="p-2 bg-blue-50 rounded-lg hover:bg-blue-100 transition-all active:scale-95"
-                        title="Crear Informe"
-                      >
-                        <FileText className="w-5 h-5 text-blue-600" />
-                      </button>
                     </div>
-                  </div>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="font-medium text-gray-800">Dirección</h3>
-                    <button
-                      onClick={handleRefreshAddress}
-                      className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all active:scale-95"
-                      disabled={isLoadingAddress}
-                      title="Actualizar dirección"
-                    >
-                      <RefreshCw className={`w-5 h-5 text-gray-600 ${isLoadingAddress ? 'animate-spin' : ''}`} />
-                    </button>
                   </div>
                   
-                  {isLoadingAddress ? (
-                    <p className="text-sm text-gray-500">Obteniendo dirección...</p>
-                  ) : addressError ? (
-                    <div className="text-sm text-red-600">
-                      Error al obtener la dirección. 
-                      <button 
-                        onClick={handleRefreshAddress}
-                        className="text-blue-600 hover:text-blue-700 ml-2"
-                      >
-                        Intentar de nuevo
-                      </button>
+                  <div className="space-y-2">
+                    <div className="text-sm text-gray-600 font-medium">
+                      Coordenadas: {currentLocation.lat.toFixed(6)}, {currentLocation.lng.toFixed(6)}
                     </div>
-                  ) : address ? (
-                    <p className="text-sm text-gray-600">{address}</p>
-                  ) : (
-                    <p className="text-sm text-gray-500">No se ha podido obtener la dirección</p>
-                  )}
+                    
+                    {isLoadingAddress ? (
+                      <p className="text-sm text-gray-500">Obteniendo dirección...</p>
+                    ) : addressError ? (
+                      <div className="text-sm text-red-600">
+                        Error al obtener la dirección. 
+                        <button 
+                          onClick={handleRefreshAddress}
+                          className="text-blue-600 hover:text-blue-700 ml-2"
+                        >
+                          Intentar de nuevo
+                        </button>
+                      </div>
+                    ) : address ? (
+                      <div>
+                        <div className="text-sm font-medium text-gray-600">Dirección:</div>
+                        <p className="text-sm text-gray-600">{address}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">No se ha podido obtener la dirección</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex gap-4 mt-6">
                   <button
-                    onClick={handleIncidentClick}
-                    className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md"
+                    onClick={handleCreateReport}
+                    className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all active:scale-95 shadow-md flex items-center justify-center gap-2"
                   >
-                    Continuar con el Reporte
+                    <FileText className="w-5 h-5" />
+                    <span>Continuar con el Reporte</span>
                   </button>
                 </div>
               </div>
@@ -277,11 +298,11 @@ const IncidentTracker = () => {
               Instrucciones
             </h2>
             <ol className="space-y-3 text-gray-600">
-              <li className="pl-2">1. El mapa mostrará automáticamente tu ubicación actual</li>
-              <li className="pl-2">2. Haz clic en cualquier punto del mapa para seleccionar una ubicación diferente</li>
+              <li className="pl-2">1. Seleccione una ubicación haciendo clic en cualquier punto del mapa</li>
+              <li className="pl-2">2. Confirme si la dirección que aparece en el marcador es correcta</li>
               <li className="pl-2">3. Las coordenadas y la dirección se actualizarán automáticamente</li>
-              <li className="pl-2">4. Si la dirección no es correcta, puedes actualizarla con el botón de refrescar</li>
-              <li className="pl-2">5. Usa el botón de continuar para proceder con el reporte</li>
+              <li className="pl-2">4. Puede actualizar la dirección con el botón de refrescar si es necesario</li>
+              <li className="pl-2">5. Use el botón de continuar para proceder con el reporte</li>
             </ol>
           </div>
         </div>
