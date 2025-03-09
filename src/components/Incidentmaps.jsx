@@ -119,25 +119,29 @@ const IncidentTracker = () => {
 
   const handleCreateReport = () => {
     if (currentLocation) {
-      // Create coordinates string for consistency
-      const coordinatesString = `${currentLocation.lat.toFixed(6)},${currentLocation.lng.toFixed(6)}`;
+      // Formato correcto de la dirección con coordenadas para asegurar compatibilidad
+      // con el componente ReportCard que las va a extraer después
+      let addressWithCoordinates = '';
       
-      // Log what we're sending to help with debugging
-      console.log("Sending to report page:", {
-        location: currentLocation,
-        address: address,
-        coordinates: coordinatesString
+      if (address) {
+        addressWithCoordinates = `${address} (Coordenadas: ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)})`;
+      } else {
+        addressWithCoordinates = `Ubicación seleccionada (Coordenadas: ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)})`;
+      }
+      
+      // Log para depuración
+      console.log("Enviando a página de reporte:", {
+        addressWithCoordinates: addressWithCoordinates
       });
       
-      // Navigate with all data properly formatted
+      // Navegar a la página de reporte con el formato correcto
       navigate('/report', {
         state: { 
-          location: {
+          address: addressWithCoordinates,
+          coordinates: {
             lat: currentLocation.lat,
             lng: currentLocation.lng
-          },
-          address: address,
-          coordinates: coordinatesString
+          }
         }
       });
     } else {

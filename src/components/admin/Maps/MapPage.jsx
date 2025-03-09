@@ -17,7 +17,7 @@ function MapUpdater({ center }) {
 
 const LocationViewer = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [location, setLocation] = useState([-12.046374, -77.042793]); // Lima por defecto
+  const [location, setLocation] = useState([-2.903231, -78.963353]); // Lima por defecto
   const [error, setError] = useState('');
 
   const handleSearchSubmit = async (e) => {
@@ -68,7 +68,7 @@ const LocationViewer = () => {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Ejemplo: Lima, Perú"
+              placeholder="Ejemplo: Barrio, Rayoloma"
               className="flex-1 p-2 border rounded"
             />
             <button
